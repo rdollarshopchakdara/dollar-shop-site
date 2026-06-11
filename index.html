@@ -171,13 +171,27 @@
   .mn-logo span b{color:var(--green);}
 
   @media(max-width:700px){
-    .header-nav{display:none;}
-    .hamburger{display:flex;}
-    .logo-text b{font-size:20px;}
-    .logo-text small{font-size:11px;}
+    .header-nav{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 8px 8px;gap:2px;}
+    .header-nav::-webkit-scrollbar{display:none;}
+    .hnav-item{white-space:nowrap;font-size:12px;padding:6px 12px;}
+    .hamburger{display:none;}
+    .logo-text b{font-size:22px;}
+    .logo-text small{font-size:11px;letter-spacing:1px;}
     .logo-img{width:44px;height:44px;}
-    .main-layout{flex-direction:column;}
-    .cat-sidebar{width:100%;position:static;display:none;}
+    .main-layout{flex-direction:column;padding:8px;}
+    .cat-sidebar{width:100%;position:static;}
+    .cat-sidebar-item{padding:8px 12px;font-size:13px;}
+  }
+
+  @media(max-width:480px){
+    .logo-text b{font-size:18px;}
+    .cat-sidebar{display:none;}
+    .cat-sidebar-title{display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+    .cat-sidebar-title::after{content:'▼';font-size:12px;}
+    .cat-sidebar.open .cat-sidebar-title::after{content:'▲';}
+    .cat-sidebar-items{display:none;}
+    .cat-sidebar.open .cat-sidebar-items{display:block;}
+    .mobile-cat-btn{display:flex;align-items:center;gap:8px;background:var(--navy);color:var(--yellow);border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin:8px 0;}
   }
 
   @media(max-width:500px){
@@ -236,6 +250,11 @@
   <p>Plastic se Jewellery tak, Cosmetics se Mart items tak — ghar baithe order karein, WhatsApp pe confirm.</p>
   <div class="mascot">🤓</div>
 </div></div>
+<!-- Mobile categories toggle -->
+<button class="mobile-cat-btn" id="mobileCatBtn" onclick="toggleMobileCats()" style="display:none;margin:8px 16px;width:calc(100% - 32px);">
+  📂 Categories <span id="mobileCatArrow">▼</span>
+</button>
+
 <div class="main-layout">
   <div class="cat-sidebar" id="catSidebar">
     <div class="cat-sidebar-title">📂 Categories</div>
@@ -407,6 +426,28 @@
     renderChips();
     renderProducts();
   }
+
+  function toggleMobileCats(){
+    const sidebar = document.getElementById('catSidebar');
+    const arrow = document.getElementById('mobileCatArrow');
+    const isOpen = sidebar.style.display === 'block';
+    sidebar.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  }
+
+  // Show/hide mobile cat button based on screen size
+  function checkMobileCatBtn(){
+    const btn = document.getElementById('mobileCatBtn');
+    const sidebar = document.getElementById('catSidebar');
+    if(window.innerWidth <= 480){
+      btn.style.display = 'flex';
+      sidebar.style.display = 'none';
+    } else {
+      btn.style.display = 'none';
+      sidebar.style.display = '';
+    }
+  }
+  window.addEventListener('resize', checkMobileCatBtn);
 
   function openMobileNav(){ document.getElementById('mobileNav').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeMobileNav(){ document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow=''; }
@@ -584,6 +625,7 @@
     window.open(`https://wa.me/${SHOP_WHATSAPP}?text=${msg}`,'_blank');
   }
   loadProducts();
+  checkMobileCatBtn();
 </script>
 </body>
 </html>
