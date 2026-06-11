@@ -391,8 +391,10 @@ async function sb(path, options={}) {
     },
     ...options
   });
-  if(res.status === 204) return {};
-  return res.json();
+  if(res.status === 204 || res.status === 201) return {};
+  const text = await res.text();
+  if(!text || text.trim() === '') return {};
+  try { return JSON.parse(text); } catch(e) { return {}; }
 }
 
 // Inject logo
@@ -549,7 +551,7 @@ async function demoSave(){
   if(!name){ alert('Product naam likho!'); return; }
   const result = await sb('/rest/v1/products', {
     method:'POST',
-    prefer:'return=minimal',
+    prefer:'return=representation',
     body: JSON.stringify({name, category:cat, price, stock, low_stock_alert:lowAlert, emoji:'📦', is_active:true})
   });
   alert('✅ Product save ho gaya!');
