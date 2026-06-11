@@ -151,6 +151,14 @@
 
   /* ===== SETTINGS ===== */
   .settings-card{background:var(--cloud);border-radius:14px;border:1.5px solid var(--line);padding:22px;margin-bottom:16px;max-width:560px;}
+  .theme-card{border-radius:12px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative;}
+  .theme-card.selected{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,33,92,.2);}
+  .theme-card .tc-preview{height:70px;display:flex;}
+  .theme-card .tc-nav{flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:.3px;}
+  .theme-card .tc-body{background:#fff;padding:8px 10px;}
+  .theme-card .tc-name{font-size:12px;font-weight:700;color:#333;}
+  .theme-card .tc-check{position:absolute;top:6px;right:6px;background:#fff;border-radius:50%;width:20px;height:20px;display:none;align-items:center;justify-content:center;font-size:12px;}
+  .theme-card.selected .tc-check{display:flex;}
   .settings-card h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line);}
   .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;}
   .toggle-row:last-child{border:none;}
@@ -313,7 +321,16 @@
       <!-- SETTINGS PAGE -->
       <div class="page" id="page-settings">
         <h2 style="margin-bottom:20px;">⚙️ Settings</h2>
-        <div class="settings-card">
+
+        <!-- THEME CARD -->
+        <div class="settings-card" style="max-width:660px;">
+          <h3>🎨 Website Theme</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Website ka color theme change karein — change hote hi live ho jayega!</p>
+          <div id="themeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px;"></div>
+          <div style="display:flex;justify-content:flex-end;">
+            <button class="btn-save" onclick="applyTheme()" style="padding:10px 20px;">✅ Apply Theme</button>
+          </div>
+        </div>
           <h3>🏪 Shop Info</h3>
           <div class="field"><label>Shop Name</label><input type="text" value="R. Dollar Shop & Mart"></div>
           <div class="field"><label>WhatsApp Number</label><input type="text" value="0345-9522155"></div>
@@ -375,7 +392,17 @@
         <div class="field"><label>Stock Qty</label><input type="number" placeholder="50"></div>
         <div class="field"><label>Low Stock Alert</label><input type="number" placeholder="10"></div>
       </div>
-      <div class="field"><label>Description (optional)</label><textarea rows="2" placeholder="Short product description..."></textarea></div>
+      <div class="field"><label>Description</label><textarea id="prodDesc" rows="3" placeholder="Product ki detail likho — size, material, color, etc..."></textarea></div>
+      <div class="field">
+        <label>Extra Photos (optional)</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input type="file" id="extraPhoto1" accept="image/*" style="font-size:13px;">
+          <input type="file" id="extraPhoto2" accept="image/*" style="font-size:13px;">
+          <input type="file" id="extraPhoto3" accept="image/*" style="font-size:13px;">
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Max 3 extra photos</div>
+      </div>
+      <div class="field"><label>YouTube Video Link (optional)</label><input type="url" id="prodVideo" placeholder="https://www.youtube.com/watch?v=..."></div>
     </div>
     <div class="modal-ft">
       <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
@@ -634,7 +661,16 @@ async function demoSave(){
   const result = await sb('/rest/v1/products', {
     method:'POST',
     prefer:'return=representation',
-    body: JSON.stringify({name, category:cat, price, stock, low_stock_alert:lowAlert, emoji:'📦', is_active:true, image_url:imageUrl})
+    body: JSON.stringify({
+        name, category:cat, price, stock,
+        low_stock_alert:lowAlert,
+        emoji:'📦',
+        is_active:true,
+        image_url:imageUrl,
+        description: document.getElementById('prodDesc').value.trim() || null,
+        extra_images: extraImages,
+        video_url: document.getElementById('prodVideo').value.trim() || null
+      })
   });
   alert('✅ Product save ho gaya!');
   document.querySelector('#addModal .btn-save').textContent = 'Save Product';
@@ -642,6 +678,9 @@ async function demoSave(){
   document.getElementById('photoInput').value = '';
   document.getElementById('photoUploadArea').style.backgroundImage = '';
   document.getElementById('photoLabel').textContent = 'Click to upload product photo';
+  document.getElementById('prodDesc').value = '';
+  document.getElementById('prodVideo').value = '';
+  for(let i=1;i<=3;i++) document.getElementById('extraPhoto'+i).value = '';
   closeAddModal();
   renderProducts();
   loadDashboard();
@@ -692,6 +731,85 @@ async function loadDashboard(){
     }
   } catch(e){ console.log('Dashboard error', e); }
 }
+
+// ===== THEMES =====
+const THEMES = [
+  {id:'original', name:'Original', nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
+  {id:'emerald', name:'Emerald', nav:'#064E3B', yellow:'#34D399', green:'#10B981', greenDk:'#059669', paper:'#F0FDF4'},
+  {id:'royal', name:'Royal Blue', nav:'#1E3A8A', yellow:'#FCD34D', green:'#60A5FA', greenDk:'#2563EB', paper:'#EFF6FF'},
+  {id:'crimson', name:'Crimson', nav:'#7F1D1D', yellow:'#FBBF24', green:'#EF4444', greenDk:'#DC2626', paper:'#FFF5F5'},
+  {id:'purple', name:'Purple', nav:'#4C1D95', yellow:'#F59E0B', green:'#A78BFA', greenDk:'#7C3AED', paper:'#FAF5FF'},
+  {id:'ocean', name:'Ocean', nav:'#0C4A6E', yellow:'#38BDF8', green:'#06B6D4', greenDk:'#0284C7', paper:'#F0F9FF'},
+  {id:'forest', name:'Forest', nav:'#14532D', yellow:'#FDE047', green:'#4ADE80', greenDk:'#16A34A', paper:'#F7FEE7'},
+  {id:'midnight', name:'Midnight', nav:'#0F172A', yellow:'#E2E8F0', green:'#94A3B8', greenDk:'#64748B', paper:'#F8FAFC'},
+  {id:'sunset', name:'Sunset', nav:'#7C2D12', yellow:'#FB923C', green:'#F97316', greenDk:'#EA580C', paper:'#FFF7ED'},
+  {id:'rose', name:'Rose Gold', nav:'#881337', yellow:'#FDA4AF', green:'#FB7185', greenDk:'#E11D48', paper:'#FFF1F2'},
+];
+
+let selectedTheme = localStorage.getItem('adminSelectedTheme') || 'original';
+
+function renderThemes(){
+  const grid = document.getElementById('themeGrid');
+  if(!grid) return;
+  grid.innerHTML = THEMES.map(t => `
+    <div class="theme-card ${selectedTheme===t.id?'selected':''}" onclick="selectTheme('${t.id}')" id="tc-${t.id}">
+      <div class="tc-check">✓</div>
+      <div class="tc-preview">
+        <div class="tc-nav" style="background:${t.nav};">
+          <div>
+            <div style="width:40px;height:6px;background:${t.yellow};border-radius:3px;margin-bottom:4px;"></div>
+            <div style="width:30px;height:4px;background:rgba(255,255,255,.4);border-radius:2px;"></div>
+          </div>
+        </div>
+        <div style="flex:1;background:${t.paper};display:flex;flex-direction:column;justify-content:center;padding:6px;gap:4px;">
+          <div style="width:100%;height:6px;background:${t.green};border-radius:3px;"></div>
+          <div style="width:70%;height:4px;background:${t.yellow};border-radius:2px;"></div>
+        </div>
+      </div>
+      <div class="tc-body">
+        <div class="tc-name">${t.name}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <div style="width:14px;height:14px;border-radius:50%;background:${t.nav};"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:${t.yellow};"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:${t.greenDk};"></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function selectTheme(id){
+  selectedTheme = id;
+  document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('tc-'+id).classList.add('selected');
+}
+
+async function applyTheme(){
+  const t = THEMES.find(th=>th.id===selectedTheme);
+  if(!t) return;
+  // Save to Supabase settings (or localStorage for now)
+  localStorage.setItem('adminSelectedTheme', t.id);
+  // Save theme to Supabase for website to read
+  try {
+    await sb('/rest/v1/shop_settings?key=eq.theme', {method:'DELETE', prefer:'return=minimal'});
+  } catch(e){}
+  try {
+    await sb('/rest/v1/shop_settings', {
+      method:'POST', prefer:'return=minimal',
+      body: JSON.stringify({key:'theme', value: JSON.stringify(t)})
+    });
+  } catch(e){
+    // If table doesn't exist, save to localStorage only
+  }
+  alert('✅ Theme "'+t.name+'" apply ho gayi! Website refresh karein.');
+}
+
+// Render themes when settings page opens
+const origShowPage = showPage;
+showPage = function(id, el){
+  origShowPage(id, el);
+  if(id === 'settings') setTimeout(renderThemes, 50);
+};
+
 </script>
 </body>
 </html>
