@@ -59,7 +59,7 @@
   .topbar{background:var(--cloud);border-bottom:1px solid var(--line);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
   .topbar h1{font-size:20px;font-weight:800;color:var(--navy);}
   .topbar .tb-right{display:flex;align-items:center;gap:10px;}
-  .demo-pill{background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.3px;}
+  .demo-pill-hidden{background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.3px;}
   .content{padding:24px;flex:1;}
 
   /* ===== PAGES ===== */
@@ -112,8 +112,8 @@
   .prod-table tr:hover td{background:#F8F7F0;}
   .prod-emoji{font-size:24px;width:40px;height:40px;background:var(--paper);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);}
   .action-btns{display:flex;gap:6px;}
-  .btn-trend{background:#FEF3C7;color:#92400E;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:4px;display:block;width:100%;}
-  .btn-trend.on{background:#FEF08A;color:#713F12;}
+  .btn-trend{background:#F0FDF4;color:#166534;border:1.5px solid #BBF7D0;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:4px;display:block;width:100%;transition:all .15s;}
+  .btn-trend.on{background:#DCFCE7;color:#14532D;border-color:#86EFAC;}
   .btn-edit{background:#EEF2FF;color:#3730A3;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
   .btn-del{background:#FEE2E2;color:#991B1B;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
   .cat-tag{display:inline-block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;color:var(--muted);}
@@ -227,7 +227,7 @@
     <div class="topbar">
       <h1 id="pageTitle">Dashboard</h1>
       <div class="tb-right">
-        <span class="demo-pill">🎨 DEMO MODE</span>
+        
         <span style="font-size:13px;color:var(--muted);">Thu, 11 Jun 2026</span>
       </div>
     </div>
@@ -238,11 +238,11 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon yellow">🛒</div>
-            <div><div class="stat-val">12</div><div class="stat-label">Today's Orders</div><div class="stat-change">↑ 3 from yesterday</div></div>
+            <div><div class="stat-val" id="stat-orders">...</div><div class="stat-label">Today's Orders</div><div class="stat-change" id="stat-orders-change"></div></div>
           </div>
           <div class="stat-card">
             <div class="stat-icon green">💰</div>
-            <div><div class="stat-val">Rs 8,960</div><div class="stat-label">Today's Revenue</div><div class="stat-change">↑ Rs 1,200 from yesterday</div></div>
+            <div><div class="stat-val" id="stat-revenue">...</div><div class="stat-label">Today's Revenue</div><div class="stat-change" id="stat-revenue-change"></div></div>
           </div>
           <div class="stat-card">
             <div class="stat-icon blue">📦</div>
@@ -256,11 +256,7 @@
         <div class="dash-grid">
           <div class="dash-card">
             <h3>🛒 Recent Orders</h3>
-            <div class="order-row"><div><div class="order-id">#1042</div><div class="order-name">Ayesha Bibi</div></div><div class="order-amt">Rs 560</div><span class="badge pending">Pending</span></div>
-            <div class="order-row"><div><div class="order-id">#1041</div><div class="order-name">Imran Khan</div></div><div class="order-amt">Rs 840</div><span class="badge done">Done</span></div>
-            <div class="order-row"><div><div class="order-id">#1040</div><div class="order-name">Fatima Noor</div></div><div class="order-amt">Rs 280</div><span class="badge done">Done</span></div>
-            <div class="order-row"><div><div class="order-id">#1039</div><div class="order-name">Usman Ali</div></div><div class="order-amt">Rs 1,120</div><span class="badge pending">Pending</span></div>
-            <div class="order-row"><div><div class="order-id">#1038</div><div class="order-name">Sana Gul</div></div><div class="order-amt">Rs 560</div><span class="badge new">New</span></div>
+            <div style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">⏳ Loading recent orders...</div>
           </div>
           <div class="dash-card">
             <h3>⚠️ Low Stock Alert</h3>
@@ -372,12 +368,7 @@
           <div class="field"><label>Address</label><input type="text" value="Chakdara, Pakistan"></div>
           <div style="display:flex;justify-content:flex-end;"><button class="btn-save" style="padding:10px 20px;">Save Changes</button></div>
         </div>
-        <div class="settings-card">
-          <h3>🔔 Notifications</h3>
-          <div class="toggle-row"><div><div class="toggle-label">New Order Alert</div><div class="toggle-sub">Get notified when new order arrives</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-          <div class="toggle-row"><div><div class="toggle-label">Low Stock Alert</div><div class="toggle-sub">Alert when stock falls below limit</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-          <div class="toggle-row"><div><div class="toggle-label">Daily Summary</div><div class="toggle-sub">Daily sales report on WhatsApp</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
-        </div>
+
         <div class="settings-card">
           <h3>🔐 Change Password</h3>
           <div class="field"><label>Current Password</label><input type="password" placeholder="••••••••"></div>
@@ -732,12 +723,21 @@ async function loadDashboard(){
     const todayRevenue = todayOrders.reduce((s,o)=>s+o.total,0);
     const lowStock = prods ? prods.filter(p => p.stock <= (p.low_stock_alert||10)) : [];
 
-    // Update stat cards
+    // Update stat cards by ID
+    const s0 = document.getElementById('stat-orders');
+    const s1 = document.getElementById('stat-revenue');
     const cards = document.querySelectorAll('.stat-val');
-    if(cards[0]) cards[0].textContent = todayOrders.length;
-    if(cards[1]) cards[1].textContent = 'Rs ' + todayRevenue.toLocaleString();
+    if(s0) s0.textContent = todayOrders.length;
+    else if(cards[0]) cards[0].textContent = todayOrders.length;
+    if(s1) s1.textContent = 'Rs ' + todayRevenue.toLocaleString();
+    else if(cards[1]) cards[1].textContent = 'Rs ' + todayRevenue.toLocaleString();
     if(cards[2]) cards[2].textContent = prods ? prods.length : 0;
     if(cards[3]) cards[3].textContent = pendingOrders.length;
+    // Clear change texts
+    const c0 = document.getElementById('stat-orders-change');
+    const c1 = document.getElementById('stat-revenue-change');
+    if(c0) c0.textContent = todayOrders.length === 0 ? 'Aaj koi order nahi' : '';
+    if(c1) c1.textContent = todayRevenue === 0 ? 'Aaj koi revenue nahi' : '';
 
     // Update pending badge in sidebar
     const badge = document.querySelector('.sb-item span[style]');
@@ -771,9 +771,12 @@ async function loadDashboard(){
 const THEMES = [
   // ORIGINAL
   {id:'original',    name:'💛 Original',      nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
+  // HEEMU
+  {id:'heemu',       name:'🌿 Heemu',         nav:'#1F2937', yellow:'#10B981', green:'#10B981', greenDk:'#047857', paper:'#FAF5EE'},
   // LIGHT
   {id:'pure_white',  name:'🤍 Pure White',    nav:'#1F2937', yellow:'#FBBF24', green:'#10B981', greenDk:'#059669', paper:'#FFFFFF'},
   {id:'off_white',   name:'🍦 Off White',     nav:'#374151', yellow:'#F59E0B', green:'#6EE7B7', greenDk:'#34D399', paper:'#FAFAFA'},
+  {id:'soft_gray',   name:'🩶 Soft Gray',     nav:'#334155', yellow:'#38BDF8', green:'#34D399', greenDk:'#0EA5E9', paper:'#F1F5F9'},
   {id:'sky_light',   name:'☁️ Sky Light',     nav:'#1E40AF', yellow:'#FDE68A', green:'#60A5FA', greenDk:'#3B82F6', paper:'#EFF6FF'},
   {id:'mint_light',  name:'🌿 Mint Light',    nav:'#065F46', yellow:'#FDE68A', green:'#6EE7B7', greenDk:'#059669', paper:'#ECFDF5'},
   {id:'warm_cream',  name:'🧈 Warm Cream',    nav:'#78350F', yellow:'#FCD34D', green:'#D97706', greenDk:'#B45309', paper:'#FFFBEB'},
@@ -878,4 +881,3 @@ showPage = function(id, el){
 </script>
 </body>
 </html>
-
