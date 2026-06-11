@@ -1,1 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - Dollar Shop & Mart</title>
+<style>
+  :root{
+    --navy:#14215C; --navy-light:#1E2E73; --yellow:#F5D311;
+    --green:#4CAF7D; --green-dk:#2E8B57; --paper:#FFFDF5;
+    --cloud:#FFFFFF; --ink:#14215C; --muted:#7A8199;
+    --line:#E6E3D5; --red:#E53E3E; --orange:#DD6B20;
+    --sidebar:220px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--paper);color:var(--ink);}
+
+  /* ===== LOGIN ===== */
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy);padding:16px;}
+  .login-card{background:var(--cloud);border-radius:20px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .login-logo{text-align:center;margin-bottom:28px;}
+  .login-logo img{width:72px;height:72px;border-radius:50%;border:3px solid var(--yellow);}
+  .login-logo h2{font-size:22px;font-weight:900;color:var(--navy);margin-top:12px;text-transform:uppercase;letter-spacing:.5px;}
+  .login-logo h2 span{color:var(--green-dk);}
+  .login-logo p{font-size:12px;color:var(--muted);margin-top:3px;letter-spacing:1px;}
+  .login-field{margin-bottom:16px;}
+  .login-field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+  .login-field input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:var(--paper);}
+  .login-field input:focus{outline:none;border-color:var(--navy);}
+  .login-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.3px;}
+  .login-btn:hover{background:var(--navy-light);}
+  .login-err{color:var(--red);font-size:13px;text-align:center;margin-top:10px;display:none;}
+
+  /* ===== LAYOUT ===== */
+  .app{display:none;min-height:100vh;}
+  .app.show{display:flex;}
+  .sidebar{width:var(--sidebar);background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;}
+  .sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.1);}
+  .sb-logo img{width:44px;height:44px;border-radius:50%;border:2px solid var(--yellow);}
+  .sb-logo .sb-title{font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.5px;margin-top:8px;line-height:1.3;}
+  .sb-logo .sb-title span{color:var(--green);}
+  .sb-logo .sb-sub{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px;margin-top:2px;}
+  .sb-nav{flex:1;padding:12px 0;}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:11px 18px;cursor:pointer;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;transition:all .15s;border-left:3px solid transparent;}
+  .sb-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+  .sb-item.active{background:rgba(245,211,17,.12);color:var(--yellow);border-left-color:var(--yellow);}
+  .sb-item .icon{font-size:18px;width:22px;text-align:center;}
+  .sb-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1.5px;padding:14px 18px 6px;text-transform:uppercase;}
+  .sb-foot{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
+  .sb-user{display:flex;align-items:center;gap:8px;}
+  .sb-avatar{width:34px;height:34px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--navy);}
+  .sb-user-info .name{font-size:12px;font-weight:700;color:#fff;}
+  .sb-user-info .role{font-size:10px;color:rgba(255,255,255,.5);}
+  .logout-btn{margin-top:10px;width:100%;background:rgba(255,255,255,.08);border:none;border-radius:8px;padding:8px;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer;font-weight:600;}
+  .logout-btn:hover{background:rgba(255,255,255,.14);color:#fff;}
+
+  /* ===== MAIN ===== */
+  .main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+  .topbar{background:var(--cloud);border-bottom:1px solid var(--line);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar h1{font-size:20px;font-weight:800;color:var(--navy);}
+  .topbar .tb-right{display:flex;align-items:center;gap:10px;}
+  .demo-pill{background:#FEF3C7;color:#92400E;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.3px;}
+  .content{padding:24px;flex:1;}
+
+  /* ===== PAGES ===== */
+  .page{display:none;}
+  .page.active{display:block;}
+
+  /* ===== DASHBOARD ===== */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+  .stat-card{background:var(--cloud);border-radius:14px;padding:20px;border:1.5px solid var(--line);display:flex;align-items:center;gap:14px;}
+  .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .stat-icon.yellow{background:#FEF9C3;}
+  .stat-icon.green{background:#DCFCE7;}
+  .stat-icon.blue{background:#DBEAFE;}
+  .stat-icon.orange{background:#FFEDD5;}
+  .stat-val{font-size:26px;font-weight:900;color:var(--navy);line-height:1;}
+  .stat-label{font-size:12px;color:var(--muted);font-weight:600;margin-top:3px;}
+  .stat-change{font-size:11px;color:var(--green-dk);font-weight:700;margin-top:4px;}
+
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .dash-card{background:var(--cloud);border-radius:14px;padding:20px;border:1.5px solid var(--line);}
+  .dash-card h3{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+  .order-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .order-row:last-child{border:none;}
+  .order-id{font-weight:700;color:var(--navy);}
+  .order-name{color:var(--muted);}
+  .order-amt{font-weight:700;color:var(--green-dk);}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge.pending{background:#FEF3C7;color:#92400E;}
+  .badge.done{background:#DCFCE7;color:#166534;}
+  .badge.new{background:#DBEAFE;color:#1E3A8A;}
+  .stock-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .stock-row:last-child{border:none;}
+  .stock-name{font-weight:600;}
+  .stock-low{color:var(--red);font-weight:700;}
+
+  /* ===== PRODUCTS ===== */
+  .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .page-head h2{font-size:18px;font-weight:800;}
+  .btn-primary{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+  .btn-primary:hover{background:var(--navy-light);}
+  .filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-select{padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;background:var(--cloud);color:var(--ink);font-weight:600;}
+  .search-input{padding:8px 14px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;background:var(--cloud);flex:1;min-width:160px;}
+  .search-input:focus,.filter-select:focus{outline:none;border-color:var(--navy);}
+  .prod-table{background:var(--cloud);border-radius:14px;border:1.5px solid var(--line);overflow:hidden;}
+  .prod-table table{width:100%;border-collapse:collapse;}
+  .prod-table th{background:var(--navy);color:#fff;padding:12px 14px;font-size:12px;font-weight:700;text-align:left;letter-spacing:.3px;}
+  .prod-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--line);}
+  .prod-table tr:last-child td{border:none;}
+  .prod-table tr:hover td{background:#F8F7F0;}
+  .prod-emoji{font-size:24px;width:40px;height:40px;background:var(--paper);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);}
+  .action-btns{display:flex;gap:6px;}
+  .btn-trend{background:#FEF3C7;color:#92400E;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:4px;display:block;width:100%;}
+  .btn-trend.on{background:#FEF08A;color:#713F12;}
+  .btn-edit{background:#EEF2FF;color:#3730A3;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
+  .btn-del{background:#FEE2E2;color:#991B1B;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
+  .cat-tag{display:inline-block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;color:var(--muted);}
+
+  /* ===== ADD PRODUCT MODAL ===== */
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,33,92,.6);z-index:100;display:none;align-items:center;justify-content:center;padding:16px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:var(--cloud);border-radius:18px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+  .modal-hd{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  .modal-hd h3{font-size:17px;font-weight:800;color:var(--navy);}
+  .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
+  .modal-body{padding:20px 22px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+  .field input,.field select,.field textarea{width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);font-family:inherit;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--navy);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .photo-upload{border:2px dashed var(--line);border-radius:10px;padding:28px;text-align:center;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600;transition:border-color .15s;}
+  .photo-upload:hover{border-color:var(--navy);color:var(--navy);}
+  .photo-upload .up-icon{font-size:32px;margin-bottom:8px;}
+  .modal-ft{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;}
+  .btn-cancel{background:var(--paper);border:1.5px solid var(--line);border-radius:9px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+  .btn-save{background:var(--green-dk);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;}
+
+  /* ===== ORDERS ===== */
+  .orders-table{background:var(--cloud);border-radius:14px;border:1.5px solid var(--line);overflow:hidden;}
+  .orders-table table{width:100%;border-collapse:collapse;}
+  .orders-table th{background:var(--navy);color:#fff;padding:12px 14px;font-size:12px;font-weight:700;text-align:left;}
+  .orders-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .orders-table tr:last-child td{border:none;}
+  .orders-table tr:hover td{background:#F8F7F0;}
+  .order-items{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .status-select{border:1.5px solid var(--line);border-radius:7px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer;background:var(--paper);}
+  .wa-btn{background:#25D366;color:#fff;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
+
+  /* ===== SETTINGS ===== */
+  .settings-card{background:var(--cloud);border-radius:14px;border:1.5px solid var(--line);padding:22px;margin-bottom:16px;max-width:560px;}
+  .theme-card{border-radius:12px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative;}
+  .theme-card.selected{border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,33,92,.2);}
+  .theme-card .tc-preview{height:70px;display:flex;}
+  .theme-card .tc-nav{flex:1;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;letter-spacing:.3px;}
+  .theme-card .tc-body{background:#fff;padding:8px 10px;}
+  .theme-card .tc-name{font-size:12px;font-weight:700;color:#333;}
+  .theme-card .tc-check{position:absolute;top:6px;right:6px;background:#fff;border-radius:50%;width:20px;height:20px;display:none;align-items:center;justify-content:center;font-size:12px;}
+  .theme-card.selected .tc-check{display:flex;}
+  .settings-card h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line);}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .toggle-row:last-child{border:none;}
+  .toggle-label{font-weight:600;}
+  .toggle-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .toggle{width:42px;height:24px;background:var(--line);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+  .toggle.on{background:var(--green-dk);}
+  .toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+  .toggle.on::after{left:21px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="LOGO_PLACEHOLDER" alt="Logo">
+      <h2><span>Dollar</span> Shop & Mart</h2>
+      <p>📍 CHAKDARA &nbsp;·&nbsp; ADMIN PANEL</p>
+    </div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Login →</button>
+    <div class="login-err" id="loginErr">❌ Wrong username or password</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <img src="LOGO_PLACEHOLDER" alt="Logo">
+      <div class="sb-title"><span>Dollar</span> Shop & Mart</div>
+      <div class="sb-sub">Admin Panel</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <div class="sb-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
+      <div class="sb-item" onclick="showPage('products',this)"><span class="icon">📦</span> Products</div>
+      <div class="sb-item" onclick="showPage('orders',this)"><span class="icon">🛒</span> Orders <span style="background:var(--yellow);color:var(--navy);border-radius:10px;padding:1px 7px;font-size:10px;font-weight:800;margin-left:4px;">3</span></div>
+      <div class="sb-section">Settings</div>
+      <div class="sb-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span> Settings</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="sb-avatar">A</div>
+        <div class="sb-user-info">
+          <div class="name">Admin</div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">⬅ Logout</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="tb-right">
+        <span class="demo-pill">🎨 DEMO MODE</span>
+        <span style="font-size:13px;color:var(--muted);">Thu, 11 Jun 2026</span>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon yellow">🛒</div>
+            <div><div class="stat-val">12</div><div class="stat-label">Today's Orders</div><div class="stat-change">↑ 3 from yesterday</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">💰</div>
+            <div><div class="stat-val">Rs 8,960</div><div class="stat-label">Today's Revenue</div><div class="stat-change">↑ Rs 1,200 from yesterday</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue">📦</div>
+            <div><div class="stat-val">42</div><div class="stat-label">Total Products</div><div class="stat-change">5 low stock</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">⏳</div>
+            <div><div class="stat-val">3</div><div class="stat-label">Pending Orders</div><div class="stat-change">Need attention</div></div>
+          </div>
+        </div>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h3>🛒 Recent Orders</h3>
+            <div class="order-row"><div><div class="order-id">#1042</div><div class="order-name">Ayesha Bibi</div></div><div class="order-amt">Rs 560</div><span class="badge pending">Pending</span></div>
+            <div class="order-row"><div><div class="order-id">#1041</div><div class="order-name">Imran Khan</div></div><div class="order-amt">Rs 840</div><span class="badge done">Done</span></div>
+            <div class="order-row"><div><div class="order-id">#1040</div><div class="order-name">Fatima Noor</div></div><div class="order-amt">Rs 280</div><span class="badge done">Done</span></div>
+            <div class="order-row"><div><div class="order-id">#1039</div><div class="order-name">Usman Ali</div></div><div class="order-amt">Rs 1,120</div><span class="badge pending">Pending</span></div>
+            <div class="order-row"><div><div class="order-id">#1038</div><div class="order-name">Sana Gul</div></div><div class="order-amt">Rs 560</div><span class="badge new">New</span></div>
+          </div>
+          <div class="dash-card">
+            <h3>⚠️ Low Stock Alert</h3>
+            <div class="stock-row"><span class="stock-name">Plastic Items</span><span class="stock-low">5 left</span></div>
+            <div class="stock-row"><span class="stock-name">Cosmetics</span><span class="stock-low">3 left</span></div>
+            <div class="stock-row"><span class="stock-name">Cold Drinks (500ml)</span><span class="stock-low">8 left</span></div>
+            <div class="stock-row"><span class="stock-name">Dry Fruits 250g</span><span class="stock-low">4 left</span></div>
+            <div class="stock-row"><span class="stock-name">Birthday Items</span><span class="stock-low">6 left</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS PAGE -->
+      <div class="page" id="page-products">
+        <div class="page-head">
+          <h2>📦 Products <span style="font-size:14px;color:var(--muted);font-weight:600;">(42 items)</span></h2>
+          <button class="btn-primary" onclick="openAddModal()">➕ Add Product</button>
+        </div>
+        <div class="filters">
+          <input class="search-input" type="text" placeholder="🔍 Search product...">
+          <select class="filter-select">
+            <option>All Categories</option>
+            <option>Plastic</option><option>Jewellery</option><option>Decoration</option>
+            <option>Cosmetics</option><option>Stationery</option><option>Hardware</option>
+            <option>Birthday</option><option>Kitchen</option><option>Toys</option>
+            <option>Cold Drinks</option><option>Snacks</option><option>Dry Fruits</option>
+          </select>
+          <select class="filter-select">
+            <option>All Stock</option>
+            <option>Low Stock</option>
+            <option>In Stock</option>
+          </select>
+        </div>
+        <div class="prod-table">
+          <table>
+            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="prodTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ORDERS PAGE -->
+      <div class="page" id="page-orders">
+        <div class="page-head">
+          <h2>🛒 Orders</h2>
+          <div style="display:flex;gap:8px;">
+            <select class="filter-select"><option>All Orders</option><option>Pending</option><option>Done</option><option>Cancelled</option></select>
+          </div>
+        </div>
+        <div class="orders-table">
+          <table>
+            <thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SETTINGS PAGE -->
+      <div class="page" id="page-settings">
+        <h2 style="margin-bottom:20px;">⚙️ Settings</h2>
+
+        <!-- THEME CARD -->
+        <div class="settings-card" style="max-width:660px;">
+          <h3>🎨 Website Theme</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Website ka color theme change karein — change hote hi live ho jayega!</p>
+          <div id="themeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px;"></div>
+          <!-- Custom Theme -->
+          <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:4px;">
+            <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;">🎨 Custom Theme</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px;">
+              <div class="field" style="margin:0;">
+                <label>Nav Color</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cNav" value="#14215C" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cNavTxt" value="#14215C" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cNav').value=this.value">
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Accent Color</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cYellow" value="#F5D311" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cYellowTxt" value="#F5D311" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cYellow').value=this.value">
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Green Color</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cGreen" value="#2E8B57" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cGreenTxt" value="#2E8B57" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cGreen').value=this.value">
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Background</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cPaper" value="#FFFDF5" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cPaperTxt" value="#FFFDF5" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cPaper').value=this.value">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button class="btn-cancel" onclick="applyCustomTheme()" style="padding:10px 18px;font-weight:700;">🎨 Apply Custom</button>
+            <button class="btn-save" onclick="applyTheme()" style="padding:10px 20px;">✅ Apply Theme</button>
+          </div>
+        </div>
+          <h3>🏪 Shop Info</h3>
+          <div class="field"><label>Shop Name</label><input type="text" value="R. Dollar Shop & Mart"></div>
+          <div class="field"><label>WhatsApp Number</label><input type="text" value="0345-9522155"></div>
+          <div class="field"><label>Address</label><input type="text" value="Chakdara, Pakistan"></div>
+          <div style="display:flex;justify-content:flex-end;"><button class="btn-save" style="padding:10px 20px;">Save Changes</button></div>
+        </div>
+        <div class="settings-card">
+          <h3>🔔 Notifications</h3>
+          <div class="toggle-row"><div><div class="toggle-label">New Order Alert</div><div class="toggle-sub">Get notified when new order arrives</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row"><div><div class="toggle-label">Low Stock Alert</div><div class="toggle-sub">Alert when stock falls below limit</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row"><div><div class="toggle-label">Daily Summary</div><div class="toggle-sub">Daily sales report on WhatsApp</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+        <div class="settings-card">
+          <h3>🔐 Change Password</h3>
+          <div class="field"><label>Current Password</label><input type="password" placeholder="••••••••"></div>
+          <div class="field"><label>New Password</label><input type="password" placeholder="••••••••"></div>
+          <div style="display:flex;justify-content:flex-end;"><button class="btn-save" style="padding:10px 20px;">Update Password</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <h3>➕ Add New Product</h3>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="photo-upload" onclick="document.getElementById('photoInput').click()" id="photoUploadArea">
+        <div class="up-icon">📷</div>
+        <div id="photoLabel">Click to upload product photo</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">JPG, PNG — max 2MB</div>
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+      </div>
+      <div style="height:14px;"></div>
+      <div class="field"><label>Product Name</label><input type="text" placeholder="e.g. Plastic Storage Box"></div>
+      <div class="field-row">
+        <div class="field"><label>Category</label>
+          <select id="productCategory" onchange="checkCustomCat(this)">
+            <option>Plastic</option><option>Jewellery</option><option>Decoration</option>
+            <option>Cosmetics</option><option>Stationery</option><option>Hardware</option>
+            <option>Birthday</option><option>Wedding</option><option>Toys</option>
+            <option>Kitchen</option><option>Toilet</option><option>Liquids</option>
+            <option>Watches</option><option>Mobile & Electronics</option><option>Glasses</option>
+            <option>Garments</option>
+            <option>Cold Drinks</option><option>Snacks</option><option>General</option>
+            <option>Dry Fruits</option><option>Ice Cream</option>
+            <option value="__custom__">➕ New Category (Custom)</option>
+          </select>
+          <input type="text" id="customCatInput" placeholder="Nai category naam likho..." style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);">
+        </div>
+        <div class="field"><label>Price (Rs)</label><input type="number" placeholder="280"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Stock Qty</label><input type="number" placeholder="50"></div>
+        <div class="field"><label>Low Stock Alert</label><input type="number" placeholder="10"></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="prodDesc" rows="3" placeholder="Product ki detail likho — size, material, color, etc..."></textarea></div>
+      <div class="field">
+        <label>Extra Photos (optional)</label>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input type="file" id="extraPhoto1" accept="image/*" style="font-size:13px;">
+          <input type="file" id="extraPhoto2" accept="image/*" style="font-size:13px;">
+          <input type="file" id="extraPhoto3" accept="image/*" style="font-size:13px;">
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Max 3 extra photos</div>
+      </div>
+      <div class="field"><label>YouTube Video Link (optional)</label><input type="url" id="prodVideo" placeholder="https://www.youtube.com/watch?v=..."></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="demoSave()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://qudbjuxhnzrafszvlpji.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1ZGJqdXhobnpyYWZzenZscGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExODg1NjksImV4cCI6MjA5Njc2NDU2OX0.Dkdm63rmHIaZdxrIYCbE6ePHbyST0jf8PIjrtw0e-RI';
+const LOGO_B64 = 'data:image/jpeg;base64,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';
+
+// Supabase helper
+async function sb(path, options={}) {
+  const res = await fetch(SUPABASE_URL + path, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || '',
+      ...options.headers
+    },
+    ...options
+  });
+  if(res.status === 204 || res.status === 201) return {};
+  const text = await res.text();
+  if(!text || text.trim() === '') return {};
+  try { return JSON.parse(text); } catch(e) { return {}; }
+}
+
+// Inject logo
+document.querySelectorAll('img[src="LOGO_PLACEHOLDER"]').forEach(img => img.src = LOGO_B64);
+
+const PRODUCTS = [
+  {emoji:'🧹',name:'Plastic Jharoo Set',cat:'Plastic',price:280,stock:45,status:'In Stock'},
+  {emoji:'💍',name:'Ladies Ring Set',cat:'Jewellery',price:280,stock:5,status:'Low Stock'},
+  {emoji:'🎂',name:'Birthday Balloons',cat:'Birthday',price:280,stock:32,status:'In Stock'},
+  {emoji:'💄',name:'Lip Gloss Pack',cat:'Cosmetics',price:280,stock:3,status:'Low Stock'},
+  {emoji:'🍫',name:'Candyland Wafers',cat:'Snacks',price:60,stock:80,status:'In Stock'},
+  {emoji:'🥜',name:'Dry Fruits Mix 250g',cat:'Dry Fruits',price:200,stock:4,status:'Low Stock'},
+  {emoji:'🥤',name:'Pepsi 500ml',cat:'Cold Drinks',price:80,stock:24,status:'In Stock'},
+  {emoji:'✏️',name:'Pencil Box',cat:'Stationery',price:280,stock:18,status:'In Stock'},
+  {emoji:'🍳',name:'Kitchen Tray Set',cat:'Kitchen',price:280,stock:12,status:'In Stock'},
+  {emoji:'🧸',name:'Stuffed Teddy Bear',cat:'Toys',price:280,stock:7,status:'In Stock'},
+];
+
+const ORDERS = [
+  {id:'#1042',name:'Ayesha Bibi',phone:'0312-3456789',items:'Plastic x2, Birthday x1',total:'Rs 840',status:'pending',time:'10 min ago'},
+  {id:'#1041',name:'Imran Khan',phone:'0333-9876543',items:'Jewellery x3',total:'Rs 840',status:'done',time:'45 min ago'},
+  {id:'#1040',name:'Fatima Noor',phone:'0345-1112233',items:'Cosmetics x1',total:'Rs 280',status:'done',time:'1 hr ago'},
+  {id:'#1039',name:'Usman Ali',phone:'0300-5554433',items:'Cold Drinks x4, Snacks x2',total:'Rs 440',status:'pending',time:'2 hrs ago'},
+  {id:'#1038',name:'Sana Gul',phone:'0322-7788990',items:'Dry Fruits 250g x2',total:'Rs 400',status:'new',time:'3 hrs ago'},
+  {id:'#1037',name:'Bilal Nawaz',phone:'0311-2233445',items:'Kitchen x2, Toys x1',total:'Rs 840',status:'done',time:'4 hrs ago'},
+];
+
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if((u==='admin'&&p==='admin123')||(u==='master'&&p==='master123')){
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('app').classList.add('show');
+    loadDashboard(); renderProducts(); renderOrders();
+  } else {
+    document.getElementById('loginErr').style.display='block';
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function doLogout(){
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',settings:'Settings'};
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+}
+
+async function renderProducts(){
+  const tb = document.getElementById('prodTableBody');
+  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">⏳ Loading...</td></tr>';
+  try {
+    const data = await sb('/rest/v1/products?order=category,name');
+    if(!data || data.length === 0){
+      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Koi product nahi — pehla product add karein!</td></tr>';
+      return;
+    }
+    tb.innerHTML = data.map(p => {
+      const lowStock = p.stock <= (p.low_stock_alert || 10);
+      return `<tr>
+        <td><div style="display:flex;align-items:center;gap:10px;"><div class="prod-emoji">${p.emoji||'📦'}</div><div><div style="font-weight:700;">${p.name}</div></div></div></td>
+        <td><span class="cat-tag">${p.category}</span></td>
+        <td style="font-weight:700;color:var(--green-dk);">Rs ${p.price}</td>
+        <td style="font-weight:600;color:${lowStock?'var(--red)':'inherit'}">${p.stock}</td>
+        <td><span class="badge ${lowStock?'pending':'done'}">${lowStock?'Low Stock':'In Stock'}</span></td>
+        <td><div class="action-btns">
+          <button class="btn-trend ${p.is_trending?'on':''}" onclick="toggleTrending('${p.id}',${p.is_trending})" title="Trending toggle">${p.is_trending?'🔥 Trending':'⭐ Set Trending'}</button>
+          <button class="btn-edit" onclick="openEditModal('${p.id}','${p.name.replace(/'/g,"\'")}','${p.category}',${p.price},${p.stock},'${p.emoji||'📦'}')">✏️ Edit</button>
+          <button class="btn-del" onclick="deleteProduct('${p.id}')">🗑️</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--red);">Error loading products</td></tr>';
+  }
+}
+
+async function toggleTrending(id, current){
+  await sb('/rest/v1/products?id=eq.'+id, {
+    method:'PATCH', prefer:'return=minimal',
+    body: JSON.stringify({is_trending: !current})
+  });
+  renderProducts();
+}
+
+async function deleteProduct(id){
+  if(!confirm('Yeh product delete karein?')) return;
+  await sb('/rest/v1/products?id=eq.'+id, {method:'DELETE'});
+  renderProducts();
+  loadDashboard();
+}
+
+function openEditModal(id, name, cat, price, stock, emoji){
+  // Simple inline edit for now
+  const newPrice = prompt('New price:', price);
+  const newStock = prompt('New stock:', stock);
+  if(newPrice === null) return;
+  sb('/rest/v1/products?id=eq.'+id, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: JSON.stringify({price: parseFloat(newPrice), stock: parseInt(newStock)})
+  }).then(()=>{ renderProducts(); loadDashboard(); });
+}
+
+async function renderOrders(){
+  const tb = document.getElementById('ordersTableBody');
+  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">⏳ Loading...</td></tr>';
+  try {
+    const data = await sb('/rest/v1/orders?order=created_at.desc');
+    if(!data || data.length === 0){
+      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Abhi koi order nahi aaya</td></tr>';
+      return;
+    }
+    tb.innerHTML = data.map((o,i) => {
+      const itemsText = Array.isArray(o.items) ? o.items.map(it=>it.name+' x'+it.qty).join(', ') : JSON.stringify(o.items);
+      const timeAgo = new Date(o.created_at).toLocaleString('en-PK');
+      const colors = {new:'#1E3A8A', pending:'#92400E', done:'#166534', cancelled:'#991B1B'};
+      return `<tr>
+        <td style="font-weight:800;color:var(--navy);">#${o.order_number||i+1}</td>
+        <td><div style="font-weight:700;">${o.customer_name}</div>
+            <div style="font-size:12px;color:var(--muted);">${o.customer_phone}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">⏱ ${timeAgo}</div></td>
+        <td><div class="order-items">${itemsText}</div>
+            ${o.free_delivery?'<span style="font-size:11px;color:var(--green-dk);font-weight:700;">🚚 Free Delivery</span>':''}</td>
+        <td style="font-weight:800;color:var(--green-dk);">Rs ${o.total}</td>
+        <td><select class="status-select" style="color:${colors[o.status]||'#166534'}" onchange="updateOrderStatus('${o.id}',this.value)">
+          <option ${o.status==='new'?'selected':''} value="new">New</option>
+          <option ${o.status==='pending'?'selected':''} value="pending">Pending</option>
+          <option ${o.status==='done'?'selected':''} value="done">Done</option>
+          <option ${o.status==='cancelled'?'selected':''} value="cancelled">Cancelled</option>
+        </select></td>
+        <td><button class="wa-btn" onclick="window.open('https://wa.me/92'+('${o.customer_phone}'.replace(/^0/,'').replace(/-/g,'')))">💬 WhatsApp</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--red);">Error loading orders</td></tr>';
+  }
+}
+
+async function updateOrderStatus(id, status){
+  await sb('/rest/v1/orders?id=eq.'+id, {
+    method:'PATCH', prefer:'return=minimal',
+    body: JSON.stringify({status})
+  });
+}
+
+function openAddModal(){ document.getElementById('addModal').classList.add('show'); }
+function closeAddModal(){ 
+  document.getElementById('addModal').classList.remove('show'); 
+  document.getElementById('customCatInput').style.display='none';
+  document.getElementById('productCategory').value='Plastic';
+}
+function checkCustomCat(sel){
+  const customInput = document.getElementById('customCatInput');
+  if(sel.value === '__custom__'){
+    customInput.style.display = 'block';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+  }
+}
+
+function previewPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('photoUploadArea').style.backgroundImage = `url(${e.target.result})`;
+    document.getElementById('photoUploadArea').style.backgroundSize = 'cover';
+    document.getElementById('photoUploadArea').style.backgroundPosition = 'center';
+    document.getElementById('photoLabel').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPhoto(file, productName){
+  const ext = file.name.split('.').pop();
+  const filename = productName.replace(/\s+/g,'-').toLowerCase() + '-' + Date.now() + '.' + ext;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/products/${filename}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': file.type,
+      'x-upsert': 'true'
+    },
+    body: file
+  });
+  if(res.ok){
+    return `${SUPABASE_URL}/storage/v1/object/public/products/${filename}`;
+  }
+  return null;
+}
+
+async function demoSave(){
+  const inputs = document.querySelectorAll('#addModal input[type=text], #addModal input[type=number]');
+  const name = inputs[0].value.trim();
+  const catSel = document.getElementById('productCategory');
+  let cat = catSel.value;
+  if(cat === '__custom__'){
+    cat = document.getElementById('customCatInput').value.trim();
+    if(!cat){ alert('Nai category ka naam likho!'); return; }
+  }
+  const numInputs = document.querySelectorAll('#addModal input[type=number]');
+  const price = parseFloat(numInputs[0].value) || 280;
+  const stock = parseInt(numInputs[1].value) || 0;
+  const lowAlert = parseInt(numInputs[2].value) || 10;
+  if(!name){ alert('Product naam likho!'); return; }
+
+  // Upload photo if selected
+  let imageUrl = null;
+  const photoFile = document.getElementById('photoInput').files[0];
+  if(photoFile){
+    const btn = document.querySelector('#addModal .btn-save');
+    btn.textContent = '⏳ Uploading...';
+    imageUrl = await uploadPhoto(photoFile, name);
+  }
+
+  const result = await sb('/rest/v1/products', {
+    method:'POST',
+    prefer:'return=representation',
+    body: JSON.stringify({
+        name, category:cat, price, stock,
+        low_stock_alert:lowAlert,
+        emoji:'📦',
+        is_active:true,
+        image_url:imageUrl,
+        description: document.getElementById('prodDesc').value.trim() || null,
+        extra_images: extraImages,
+        video_url: document.getElementById('prodVideo').value.trim() || null
+      })
+  });
+  alert('✅ Product save ho gaya!');
+  document.querySelector('#addModal .btn-save').textContent = 'Save Product';
+  // Reset form
+  document.getElementById('photoInput').value = '';
+  document.getElementById('photoUploadArea').style.backgroundImage = '';
+  document.getElementById('photoLabel').textContent = 'Click to upload product photo';
+  document.getElementById('prodDesc').value = '';
+  document.getElementById('prodVideo').value = '';
+  for(let i=1;i<=3;i++) document.getElementById('extraPhoto'+i).value = '';
+  closeAddModal();
+  renderProducts();
+  loadDashboard();
+}
+
+async function loadDashboard(){
+  try {
+    const [prods, orders] = await Promise.all([
+      sb('/rest/v1/products?is_active=eq.true'),
+      sb('/rest/v1/orders?order=created_at.desc')
+    ]);
+    const todayOrders = orders ? orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()) : [];
+    const pendingOrders = orders ? orders.filter(o => o.status === 'new' || o.status === 'pending') : [];
+    const todayRevenue = todayOrders.reduce((s,o)=>s+o.total,0);
+    const lowStock = prods ? prods.filter(p => p.stock <= (p.low_stock_alert||10)) : [];
+
+    // Update stat cards
+    const cards = document.querySelectorAll('.stat-val');
+    if(cards[0]) cards[0].textContent = todayOrders.length;
+    if(cards[1]) cards[1].textContent = 'Rs ' + todayRevenue.toLocaleString();
+    if(cards[2]) cards[2].textContent = prods ? prods.length : 0;
+    if(cards[3]) cards[3].textContent = pendingOrders.length;
+
+    // Update pending badge in sidebar
+    const badge = document.querySelector('.sb-item span[style]');
+    if(badge) badge.textContent = pendingOrders.length;
+
+    // Recent orders in dashboard
+    const recentDiv = document.querySelector('#page-dashboard .dash-card:first-child');
+    if(recentDiv && orders && orders.length > 0){
+      const recent = orders.slice(0,5);
+      recentDiv.querySelector('h3').nextSibling;
+      const rows = recent.map(o => `<div class="order-row">
+        <div><div class="order-id">#${o.order_number||'?'}</div><div class="order-name">${o.customer_name}</div></div>
+        <div class="order-amt">Rs ${o.total}</div>
+        <span class="badge ${o.status==='new'?'new':o.status==='pending'?'pending':'done'}">${o.status}</span>
+      </div>`).join('');
+      recentDiv.innerHTML = '<h3>🛒 Recent Orders</h3>' + rows;
+    }
+
+    // Low stock
+    const stockDiv = document.querySelector('#page-dashboard .dash-card:last-child');
+    if(stockDiv && lowStock.length > 0){
+      const rows = lowStock.slice(0,5).map(p=>`<div class="stock-row"><span class="stock-name">${p.name}</span><span class="stock-low">${p.stock} left</span></div>`).join('');
+      stockDiv.innerHTML = '<h3>⚠️ Low Stock Alert</h3>' + rows;
+    } else if(stockDiv && prods){
+      stockDiv.innerHTML = '<h3>⚠️ Low Stock Alert</h3><div style="padding:20px;text-align:center;color:var(--green-dk);">✅ Sab items in stock!</div>';
+    }
+  } catch(e){ console.log('Dashboard error', e); }
+}
+
+// ===== THEMES =====
+const THEMES = [
+  // ORIGINAL
+  {id:'original',    name:'💛 Original',      nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
+  // LIGHT
+  {id:'pure_white',  name:'🤍 Pure White',    nav:'#1F2937', yellow:'#FBBF24', green:'#10B981', greenDk:'#059669', paper:'#FFFFFF'},
+  {id:'off_white',   name:'🍦 Off White',     nav:'#374151', yellow:'#F59E0B', green:'#6EE7B7', greenDk:'#34D399', paper:'#FAFAFA'},
+  {id:'sky_light',   name:'☁️ Sky Light',     nav:'#1E40AF', yellow:'#FDE68A', green:'#60A5FA', greenDk:'#3B82F6', paper:'#EFF6FF'},
+  {id:'mint_light',  name:'🌿 Mint Light',    nav:'#065F46', yellow:'#FDE68A', green:'#6EE7B7', greenDk:'#059669', paper:'#ECFDF5'},
+  {id:'warm_cream',  name:'🧈 Warm Cream',    nav:'#78350F', yellow:'#FCD34D', green:'#D97706', greenDk:'#B45309', paper:'#FFFBEB'},
+  // DARK
+  {id:'carbon',      name:'⚫ Carbon Dark',   nav:'#111827', yellow:'#FBBF24', green:'#34D399', greenDk:'#10B981', paper:'#1F2937'},
+  {id:'midnight',    name:'🌙 Midnight',      nav:'#0D1117', yellow:'#58A6FF', green:'#3FB950', greenDk:'#2EA043', paper:'#161B22'},
+  {id:'navy_gold',   name:'🏆 Navy & Gold',   nav:'#0F2557', yellow:'#D4A017', green:'#C5A028', greenDk:'#A07820', paper:'#FEF9E7'},
+  {id:'deep_ocean',  name:'🌊 Deep Ocean',    nav:'#003366', yellow:'#38BDF8', green:'#00CED1', greenDk:'#0099CC', paper:'#E6F3FF'},
+  // BOLD
+  {id:'royal_red',   name:'❤️ Royal Red',     nav:'#7F0000', yellow:'#FFD700', green:'#FF6B6B', greenDk:'#CC0000', paper:'#FFF5F5'},
+  {id:'forest',      name:'🌲 Forest',        nav:'#1A3C1A', yellow:'#F0C040', green:'#4CAF50', greenDk:'#388E3C', paper:'#F1F8E9'},
+];
+
+let selectedTheme = localStorage.getItem('adminSelectedTheme') || 'original';
+
+function syncColorInputs(){
+  ['cNav','cYellow','cGreen','cPaper'].forEach(id=>{
+    const picker = document.getElementById(id);
+    const txt = document.getElementById(id+'Txt');
+    if(picker && txt){
+      picker.addEventListener('input', ()=>{ txt.value = picker.value; });
+    }
+  });
+}
+
+function renderThemes(){
+  const grid = document.getElementById('themeGrid');
+  if(!grid) return;
+  grid.innerHTML = THEMES.map(t => `
+    <div class="theme-card ${selectedTheme===t.id?'selected':''}" onclick="selectTheme('${t.id}')" id="tc-${t.id}">
+      <div class="tc-check">✓</div>
+      <div class="tc-preview">
+        <div class="tc-nav" style="background:${t.nav};">
+          <div>
+            <div style="width:40px;height:6px;background:${t.yellow};border-radius:3px;margin-bottom:4px;"></div>
+            <div style="width:30px;height:4px;background:rgba(255,255,255,.4);border-radius:2px;"></div>
+          </div>
+        </div>
+        <div style="flex:1;background:${t.paper};display:flex;flex-direction:column;justify-content:center;padding:6px;gap:4px;">
+          <div style="width:100%;height:6px;background:${t.green};border-radius:3px;"></div>
+          <div style="width:70%;height:4px;background:${t.yellow};border-radius:2px;"></div>
+        </div>
+      </div>
+      <div class="tc-body">
+        <div class="tc-name">${t.name}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <div style="width:14px;height:14px;border-radius:50%;background:${t.nav};"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:${t.yellow};"></div>
+          <div style="width:14px;height:14px;border-radius:50%;background:${t.greenDk};"></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function selectTheme(id){
+  selectedTheme = id;
+  document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('tc-'+id).classList.add('selected');
+}
+
+async function applyCustomTheme(){
+  const nav = document.getElementById('cNav').value;
+  const yellow = document.getElementById('cYellow').value;
+  const green = document.getElementById('cGreen').value;
+  const paper = document.getElementById('cPaper').value;
+  const t = {id:'custom', name:'Custom', nav, yellow, green, greenDk:green, paper};
+  localStorage.setItem('adminSelectedTheme', 'custom');
+  try {
+    await sb('/rest/v1/shop_settings?key=eq.theme', {method:'DELETE', prefer:'return=minimal'});
+    await sb('/rest/v1/shop_settings', {method:'POST', prefer:'return=minimal', body: JSON.stringify({key:'theme', value: JSON.stringify(t)})});
+  } catch(e){}
+  alert('✅ Custom theme apply ho gayi!');
+}
+
+async function applyTheme(){
+  const t = THEMES.find(th=>th.id===selectedTheme);
+  if(!t) return;
+  // Save to Supabase settings (or localStorage for now)
+  localStorage.setItem('adminSelectedTheme', t.id);
+  // Save theme to Supabase for website to read
+  try {
+    await sb('/rest/v1/shop_settings?key=eq.theme', {method:'DELETE', prefer:'return=minimal'});
+  } catch(e){}
+  try {
+    await sb('/rest/v1/shop_settings', {
+      method:'POST', prefer:'return=minimal',
+      body: JSON.stringify({key:'theme', value: JSON.stringify(t)})
+    });
+  } catch(e){
+    // If table doesn't exist, save to localStorage only
+  }
+  alert('✅ Theme "'+t.name+'" apply ho gayi! Website refresh karein.');
+}
+
+// Render themes when settings page opens
+const origShowPage = showPage;
+showPage = function(id, el){
+  origShowPage(id, el);
+  if(id === 'settings') setTimeout(()=>{ renderThemes(); syncColorInputs(); }, 50);
+};
+
+</script>
+</body>
+</html>
 
