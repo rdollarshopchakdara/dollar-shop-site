@@ -327,7 +327,42 @@
           <h3>🎨 Website Theme</h3>
           <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Website ka color theme change karein — change hote hi live ho jayega!</p>
           <div id="themeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px;"></div>
-          <div style="display:flex;justify-content:flex-end;">
+          <!-- Custom Theme -->
+          <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:4px;">
+            <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;">🎨 Custom Theme</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px;">
+              <div class="field" style="margin:0;">
+                <label>Nav Color</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cNav" value="#14215C" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cNavTxt" value="#14215C" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cNav').value=this.value">
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Accent Color</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cYellow" value="#F5D311" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cYellowTxt" value="#F5D311" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cYellow').value=this.value">
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Green Color</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cGreen" value="#2E8B57" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cGreenTxt" value="#2E8B57" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cGreen').value=this.value">
+                </div>
+              </div>
+              <div class="field" style="margin:0;">
+                <label>Background</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <input type="color" id="cPaper" value="#FFFDF5" style="width:40px;height:36px;border-radius:6px;border:1.5px solid var(--line);cursor:pointer;">
+                  <input type="text" id="cPaperTxt" value="#FFFDF5" style="flex:1;padding:8px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;" oninput="document.getElementById('cPaper').value=this.value">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button class="btn-cancel" onclick="applyCustomTheme()" style="padding:10px 18px;font-weight:700;">🎨 Apply Custom</button>
             <button class="btn-save" onclick="applyTheme()" style="padding:10px 20px;">✅ Apply Theme</button>
           </div>
         </div>
@@ -734,19 +769,35 @@ async function loadDashboard(){
 
 // ===== THEMES =====
 const THEMES = [
-  {id:'original', name:'Original', nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
-  {id:'emerald', name:'Emerald', nav:'#064E3B', yellow:'#34D399', green:'#10B981', greenDk:'#059669', paper:'#F0FDF4'},
-  {id:'royal', name:'Royal Blue', nav:'#1E3A8A', yellow:'#FCD34D', green:'#60A5FA', greenDk:'#2563EB', paper:'#EFF6FF'},
-  {id:'crimson', name:'Crimson', nav:'#7F1D1D', yellow:'#FBBF24', green:'#EF4444', greenDk:'#DC2626', paper:'#FFF5F5'},
-  {id:'purple', name:'Purple', nav:'#4C1D95', yellow:'#F59E0B', green:'#A78BFA', greenDk:'#7C3AED', paper:'#FAF5FF'},
-  {id:'ocean', name:'Ocean', nav:'#0C4A6E', yellow:'#38BDF8', green:'#06B6D4', greenDk:'#0284C7', paper:'#F0F9FF'},
-  {id:'forest', name:'Forest', nav:'#14532D', yellow:'#FDE047', green:'#4ADE80', greenDk:'#16A34A', paper:'#F7FEE7'},
-  {id:'midnight', name:'Midnight', nav:'#0F172A', yellow:'#E2E8F0', green:'#94A3B8', greenDk:'#64748B', paper:'#F8FAFC'},
-  {id:'sunset', name:'Sunset', nav:'#7C2D12', yellow:'#FB923C', green:'#F97316', greenDk:'#EA580C', paper:'#FFF7ED'},
-  {id:'rose', name:'Rose Gold', nav:'#881337', yellow:'#FDA4AF', green:'#FB7185', greenDk:'#E11D48', paper:'#FFF1F2'},
+  // ORIGINAL
+  {id:'original',    name:'💛 Original',      nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
+  // LIGHT
+  {id:'pure_white',  name:'🤍 Pure White',    nav:'#1F2937', yellow:'#FBBF24', green:'#10B981', greenDk:'#059669', paper:'#FFFFFF'},
+  {id:'off_white',   name:'🍦 Off White',     nav:'#374151', yellow:'#F59E0B', green:'#6EE7B7', greenDk:'#34D399', paper:'#FAFAFA'},
+  {id:'sky_light',   name:'☁️ Sky Light',     nav:'#1E40AF', yellow:'#FDE68A', green:'#60A5FA', greenDk:'#3B82F6', paper:'#EFF6FF'},
+  {id:'mint_light',  name:'🌿 Mint Light',    nav:'#065F46', yellow:'#FDE68A', green:'#6EE7B7', greenDk:'#059669', paper:'#ECFDF5'},
+  {id:'warm_cream',  name:'🧈 Warm Cream',    nav:'#78350F', yellow:'#FCD34D', green:'#D97706', greenDk:'#B45309', paper:'#FFFBEB'},
+  // DARK
+  {id:'carbon',      name:'⚫ Carbon Dark',   nav:'#111827', yellow:'#FBBF24', green:'#34D399', greenDk:'#10B981', paper:'#1F2937'},
+  {id:'midnight',    name:'🌙 Midnight',      nav:'#0D1117', yellow:'#58A6FF', green:'#3FB950', greenDk:'#2EA043', paper:'#161B22'},
+  {id:'navy_gold',   name:'🏆 Navy & Gold',   nav:'#0F2557', yellow:'#D4A017', green:'#C5A028', greenDk:'#A07820', paper:'#FEF9E7'},
+  {id:'deep_ocean',  name:'🌊 Deep Ocean',    nav:'#003366', yellow:'#38BDF8', green:'#00CED1', greenDk:'#0099CC', paper:'#E6F3FF'},
+  // BOLD
+  {id:'royal_red',   name:'❤️ Royal Red',     nav:'#7F0000', yellow:'#FFD700', green:'#FF6B6B', greenDk:'#CC0000', paper:'#FFF5F5'},
+  {id:'forest',      name:'🌲 Forest',        nav:'#1A3C1A', yellow:'#F0C040', green:'#4CAF50', greenDk:'#388E3C', paper:'#F1F8E9'},
 ];
 
 let selectedTheme = localStorage.getItem('adminSelectedTheme') || 'original';
+
+function syncColorInputs(){
+  ['cNav','cYellow','cGreen','cPaper'].forEach(id=>{
+    const picker = document.getElementById(id);
+    const txt = document.getElementById(id+'Txt');
+    if(picker && txt){
+      picker.addEventListener('input', ()=>{ txt.value = picker.value; });
+    }
+  });
+}
 
 function renderThemes(){
   const grid = document.getElementById('themeGrid');
@@ -783,6 +834,20 @@ function selectTheme(id){
   document.getElementById('tc-'+id).classList.add('selected');
 }
 
+async function applyCustomTheme(){
+  const nav = document.getElementById('cNav').value;
+  const yellow = document.getElementById('cYellow').value;
+  const green = document.getElementById('cGreen').value;
+  const paper = document.getElementById('cPaper').value;
+  const t = {id:'custom', name:'Custom', nav, yellow, green, greenDk:green, paper};
+  localStorage.setItem('adminSelectedTheme', 'custom');
+  try {
+    await sb('/rest/v1/shop_settings?key=eq.theme', {method:'DELETE', prefer:'return=minimal'});
+    await sb('/rest/v1/shop_settings', {method:'POST', prefer:'return=minimal', body: JSON.stringify({key:'theme', value: JSON.stringify(t)})});
+  } catch(e){}
+  alert('✅ Custom theme apply ho gayi!');
+}
+
 async function applyTheme(){
   const t = THEMES.find(th=>th.id===selectedTheme);
   if(!t) return;
@@ -807,7 +872,7 @@ async function applyTheme(){
 const origShowPage = showPage;
 showPage = function(id, el){
   origShowPage(id, el);
-  if(id === 'settings') setTimeout(renderThemes, 50);
+  if(id === 'settings') setTimeout(()=>{ renderThemes(); syncColorInputs(); }, 50);
 };
 
 </script>
