@@ -344,10 +344,11 @@
       <button class="modal-close" onclick="closeAddModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="photo-upload" onclick="alert('Photo upload — Supabase storage se connect hoga!')">
+      <div class="photo-upload" onclick="document.getElementById('photoInput').click()" id="photoUploadArea">
         <div class="up-icon">📷</div>
-        <div>Click to upload product photo</div>
+        <div id="photoLabel">Click to upload product photo</div>
         <div style="font-size:11px;color:var(--muted);margin-top:4px;">JPG, PNG — max 2MB</div>
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
       </div>
       <div style="height:14px;"></div>
       <div class="field"><label>Product Name</label><input type="text" placeholder="e.g. Plastic Storage Box"></div>
@@ -542,19 +543,68 @@ async function updateOrderStatus(id, status){
 
 function openAddModal(){ document.getElementById('addModal').classList.add('show'); }
 function closeAddModal(){ document.getElementById('addModal').classList.remove('show'); }
+function previewPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('photoUploadArea').style.backgroundImage = `url(${e.target.result})`;
+    document.getElementById('photoUploadArea').style.backgroundSize = 'cover';
+    document.getElementById('photoUploadArea').style.backgroundPosition = 'center';
+    document.getElementById('photoLabel').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadPhoto(file, productName){
+  const ext = file.name.split('.').pop();
+  const filename = productName.replace(/\s+/g,'-').toLowerCase() + '-' + Date.now() + '.' + ext;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/products/${filename}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': file.type,
+      'x-upsert': 'true'
+    },
+    body: file
+  });
+  if(res.ok){
+    return `${SUPABASE_URL}/storage/v1/object/public/products/${filename}`;
+  }
+  return null;
+}
+
 async function demoSave(){
-  const name = document.querySelector('#addModal input[type=text]').value.trim();
+  const inputs = document.querySelectorAll('#addModal input[type=text], #addModal input[type=number]');
+  const name = inputs[0].value.trim();
   const cat = document.querySelector('#addModal select').value;
-  const price = parseFloat(document.querySelectorAll('#addModal input[type=number]')[0].value) || 280;
-  const stock = parseInt(document.querySelectorAll('#addModal input[type=number]')[1].value) || 0;
-  const lowAlert = parseInt(document.querySelectorAll('#addModal input[type=number]')[2].value) || 10;
+  const numInputs = document.querySelectorAll('#addModal input[type=number]');
+  const price = parseFloat(numInputs[0].value) || 280;
+  const stock = parseInt(numInputs[1].value) || 0;
+  const lowAlert = parseInt(numInputs[2].value) || 10;
   if(!name){ alert('Product naam likho!'); return; }
+
+  // Upload photo if selected
+  let imageUrl = null;
+  const photoFile = document.getElementById('photoInput').files[0];
+  if(photoFile){
+    const btn = document.querySelector('#addModal .btn-save');
+    btn.textContent = '⏳ Uploading...';
+    imageUrl = await uploadPhoto(photoFile, name);
+  }
+
   const result = await sb('/rest/v1/products', {
     method:'POST',
     prefer:'return=representation',
-    body: JSON.stringify({name, category:cat, price, stock, low_stock_alert:lowAlert, emoji:'📦', is_active:true})
+    body: JSON.stringify({name, category:cat, price, stock, low_stock_alert:lowAlert, emoji:'📦', is_active:true, image_url:imageUrl})
   });
   alert('✅ Product save ho gaya!');
+  document.querySelector('#addModal .btn-save').textContent = 'Save Product';
+  // Reset form
+  document.getElementById('photoInput').value = '';
+  document.getElementById('photoUploadArea').style.backgroundImage = '';
+  document.getElementById('photoLabel').textContent = 'Click to upload product photo';
   closeAddModal();
   renderProducts();
   loadDashboard();
