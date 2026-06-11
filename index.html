@@ -720,6 +720,22 @@
     window.open(`https://wa.me/${SHOP_WHATSAPP}?text=${msg}`,'_blank');
   }
   loadProducts();
+  applyWebsiteTheme();
+
+  async function applyWebsiteTheme(){
+    try {
+      const data = await sbFetch('/rest/v1/shop_settings?key=eq.theme');
+      if(data && data[0]){
+        const t = JSON.parse(data[0].value);
+        const root = document.documentElement;
+        root.style.setProperty('--navy', t.nav);
+        root.style.setProperty('--yellow', t.yellow);
+        root.style.setProperty('--green', t.green);
+        root.style.setProperty('--green-dk', t.greenDk);
+        root.style.setProperty('--paper', t.paper);
+      }
+    } catch(e){}
+  }
 </script>
 </body>
 </html>
