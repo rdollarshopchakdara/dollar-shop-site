@@ -112,6 +112,8 @@
   .prod-table tr:hover td{background:#F8F7F0;}
   .prod-emoji{font-size:24px;width:40px;height:40px;background:var(--paper);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);}
   .action-btns{display:flex;gap:6px;}
+  .btn-trend{background:#FEF3C7;color:#92400E;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:4px;display:block;width:100%;}
+  .btn-trend.on{background:#FEF08A;color:#713F12;}
   .btn-edit{background:#EEF2FF;color:#3730A3;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
   .btn-del{background:#FEE2E2;color:#991B1B;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
   .cat-tag{display:inline-block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;color:var(--muted);}
@@ -354,11 +356,18 @@
       <div class="field"><label>Product Name</label><input type="text" placeholder="e.g. Plastic Storage Box"></div>
       <div class="field-row">
         <div class="field"><label>Category</label>
-          <select>
+          <select id="productCategory" onchange="checkCustomCat(this)">
             <option>Plastic</option><option>Jewellery</option><option>Decoration</option>
-            <option>Cosmetics</option><option>Stationery</option><option>Kitchen</option>
-            <option>Toys</option><option>Cold Drinks</option><option>Snacks</option><option>Dry Fruits</option>
+            <option>Cosmetics</option><option>Stationery</option><option>Hardware</option>
+            <option>Birthday</option><option>Wedding</option><option>Toys</option>
+            <option>Kitchen</option><option>Toilet</option><option>Liquids</option>
+            <option>Watches</option><option>Mobile & Electronics</option><option>Glasses</option>
+            <option>Garments</option>
+            <option>Cold Drinks</option><option>Snacks</option><option>General</option>
+            <option>Dry Fruits</option><option>Ice Cream</option>
+            <option value="__custom__">➕ New Category (Custom)</option>
           </select>
+          <input type="text" id="customCatInput" placeholder="Nai category naam likho..." style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);">
         </div>
         <div class="field"><label>Price (Rs)</label><input type="number" placeholder="280"></div>
       </div>
@@ -470,6 +479,7 @@ async function renderProducts(){
         <td style="font-weight:600;color:${lowStock?'var(--red)':'inherit'}">${p.stock}</td>
         <td><span class="badge ${lowStock?'pending':'done'}">${lowStock?'Low Stock':'In Stock'}</span></td>
         <td><div class="action-btns">
+          <button class="btn-trend ${p.is_trending?'on':''}" onclick="toggleTrending('${p.id}',${p.is_trending})" title="Trending toggle">${p.is_trending?'🔥 Trending':'⭐ Set Trending'}</button>
           <button class="btn-edit" onclick="openEditModal('${p.id}','${p.name.replace(/'/g,"\'")}','${p.category}',${p.price},${p.stock},'${p.emoji||'📦'}')">✏️ Edit</button>
           <button class="btn-del" onclick="deleteProduct('${p.id}')">🗑️</button>
         </div></td>
@@ -478,6 +488,14 @@ async function renderProducts(){
   } catch(e) {
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--red);">Error loading products</td></tr>';
   }
+}
+
+async function toggleTrending(id, current){
+  await sb('/rest/v1/products?id=eq.'+id, {
+    method:'PATCH', prefer:'return=minimal',
+    body: JSON.stringify({is_trending: !current})
+  });
+  renderProducts();
 }
 
 async function deleteProduct(id){
@@ -542,7 +560,21 @@ async function updateOrderStatus(id, status){
 }
 
 function openAddModal(){ document.getElementById('addModal').classList.add('show'); }
-function closeAddModal(){ document.getElementById('addModal').classList.remove('show'); }
+function closeAddModal(){ 
+  document.getElementById('addModal').classList.remove('show'); 
+  document.getElementById('customCatInput').style.display='none';
+  document.getElementById('productCategory').value='Plastic';
+}
+function checkCustomCat(sel){
+  const customInput = document.getElementById('customCatInput');
+  if(sel.value === '__custom__'){
+    customInput.style.display = 'block';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+  }
+}
+
 function previewPhoto(input){
   const file = input.files[0];
   if(!file) return;
@@ -578,7 +610,12 @@ async function uploadPhoto(file, productName){
 async function demoSave(){
   const inputs = document.querySelectorAll('#addModal input[type=text], #addModal input[type=number]');
   const name = inputs[0].value.trim();
-  const cat = document.querySelector('#addModal select').value;
+  const catSel = document.getElementById('productCategory');
+  let cat = catSel.value;
+  if(cat === '__custom__'){
+    cat = document.getElementById('customCatInput').value.trim();
+    if(!cat){ alert('Nai category ka naam likho!'); return; }
+  }
   const numInputs = document.querySelectorAll('#addModal input[type=number]');
   const price = parseFloat(numInputs[0].value) || 280;
   const stock = parseInt(numInputs[1].value) || 0;
