@@ -34,6 +34,10 @@
   .cart-btn{position:relative;background:var(--yellow);color:var(--navy);border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;}
   .cart-count{position:absolute;top:-8px;right:-8px;background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--navy);}
   .search-bar{max-width:1100px;margin:0 auto;padding:0 16px 12px;}
+  .lang-switcher{display:flex;gap:3px;background:rgba(0,0,0,.2);border-radius:8px;padding:3px;flex-shrink:0;}
+  .lang-btn{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;cursor:pointer;transition:all .15s;}
+  .lang-btn.active{background:var(--yellow);color:var(--navy);}
+  .lang-btn:hover:not(.active){background:rgba(255,255,255,.15);color:#fff;}
   .search-bar input{width:100%;padding:11px 16px;border:none;border-radius:12px;font-size:14px;background:rgba(255,255,255,.95);}
   .search-bar input:focus{outline:2px solid var(--yellow);}
   .header-nav{display:flex;align-items:center;justify-content:center;gap:4px;padding:0 16px 8px;max-width:1100px;margin:0 auto;}
@@ -83,22 +87,22 @@
   /* ---- Section ---- */
   .section{max-width:1100px;margin:0 auto;padding:8px 16px 24px;}
   .section-head{display:flex;align-items:center;gap:10px;margin:22px 0 12px;}
-  .section-head .dot{width:11px;height:11px;border-radius:50%;background:var(--yellow);border:2px solid var(--navy);}
+  .section-head .dot{width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--green-dk);}
   .section-head h2{font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--navy);}
   .section-head.mart .dot{background:var(--green);border-color:var(--green-dk);}
 
   /* ---- Product grid ---- */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-  .card{background:var(--cloud);border-radius:14px;overflow:hidden;border:1.5px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .12s;}
-  .card:hover{transform:translateY(-2px);border-color:var(--yellow);}
+  .card{background:var(--cloud);border-radius:14px;overflow:hidden;border:1.5px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.12);border-color:var(--green);}
   .card-img{aspect-ratio:1;background:linear-gradient(135deg,var(--paper),#FFF8E0);display:flex;align-items:center;justify-content:center;font-size:46px;border-bottom:1px solid var(--line);position:relative;}
   .card-cat{position:absolute;top:8px;left:8px;background:var(--navy);color:var(--yellow);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;}
   .card-body{padding:10px 12px 12px;flex:1;display:flex;flex-direction:column;}
   .card-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:6px;flex:1;color:var(--navy);}
   .card-price{font-size:17px;font-weight:800;color:var(--green-dk);margin-bottom:10px;}
   .card-price small{font-size:11px;color:var(--muted);font-weight:500;}
-  .add-btn{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:background .12s;}
-  .add-btn:hover{background:var(--navy-light);}
+  .add-btn{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;letter-spacing:.3px;}
+  .add-btn:hover{background:var(--green-dk);transform:scale(1.02);}
   .add-btn:active{transform:scale(.97);}
   .variant-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
   .variant-btn{flex:1;min-width:44px;background:var(--paper);border:1.5px solid var(--line);border-radius:7px;padding:6px 4px;font-size:11px;font-weight:700;cursor:pointer;color:var(--navy);}
@@ -256,7 +260,14 @@
     <div class="hnav-item" id="hnav-blogs" onclick="showBlogs();setHNav('blogs')">📝 Blogs</div>
     <div class="hnav-item" id="hnav-about" onclick="showAbout();setHNav('about')">ℹ️ About Us</div>
   </div>
-  <div class="search-bar"><input type="text" id="search" placeholder="🔍 Search products..." oninput="renderProducts()"></div>
+  <div class="search-bar" style="display:flex;gap:8px;align-items:center;">
+    <input type="text" id="search" placeholder="🔍 Search products..." oninput="renderProducts()" style="flex:1;">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="lang-ru" onclick="setLang('ru')">اُردو</button>
+      <button class="lang-btn" id="lang-ro" onclick="setLang('ro')">UR</button>
+    </div>
+  </div>
 </header>
 
 <!-- Mobile Nav -->
@@ -277,8 +288,8 @@
 <div class="hero"><div class="hero-inner">
   <span class="badge">💵 Cash on Delivery</span>
   <span class="badge badge-green">🚚 Free delivery on 4+ items</span>
-  <h1>Sab Kuch, <span>Ek Jagah</span></h1>
-  <p>Plastic se Jewellery tak, Cosmetics se Mart items tak — ghar baithe order karein, WhatsApp pe confirm.</p>
+  <h1>Everything, <span>One Place</span></h1>
+  <p>From Plastic to Jewellery, Cosmetics to Mart items — order from home, confirm on WhatsApp.</p>
   <div class="mascot">🤓</div>
 </div></div>
 <!-- Mobile Category Drawer Button -->
@@ -306,7 +317,7 @@
   <img src="data:image/jpeg;base64,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" alt="R. Dollar Shop" style="width:64px;height:64px;border-radius:50%;border:2px solid var(--yellow);margin-bottom:10px;">
   <div class="f-logo"><span>Dollar</span> Shop &amp; Mart</div>
   <p>📍 Chakdara, Pakistan</p>
-  <p>Fixed price store • Quality items • Best rates</p>
+  <p>Fixed price store  •  Quality items  •  Best prices</p>
   <div class="f-phone">📞 0345-9522155 &nbsp;•&nbsp; 0315-9392839</div>
   <a class="f-wa" href="https://wa.me/923459522155" target="_blank">💬 Order on WhatsApp</a>
 </footer>
@@ -335,7 +346,7 @@
 
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <div class="drawer" id="drawer">
-  <div class="drawer-head"><h3>🛒 Your <span>Cart</span></h3><button class="drawer-close" onclick="closeCart()">✕</button></div>
+  <div class="drawer-head"><h3>🛒 Your Cart</h3><button class="drawer-close" onclick="closeCart()">✕</button></div>
   <div class="drawer-body" id="cartBody"></div>
   <div class="drawer-foot" id="cartFoot" style="display:none;">
     <div class="total-row"><span class="label">Total</span><span class="amount" id="cartTotal">Rs 0</span></div>
@@ -344,7 +355,7 @@
 </div>
 <div class="modal" id="orderModal">
   <div class="modal-card">
-    <div class="modal-head"><h3>📋 Order Details</h3><p>Aap ka order WhatsApp pe humein bhej diya jayega. Cash on delivery. 🚚 4+ items pe free delivery!</p></div>
+    <div class="modal-head"><h3>📋 Order Details</h3><p>Your order will be sent to us on WhatsApp. Cash on delivery. 🚚 Free delivery on 4+ items!</p></div>
     <div class="modal-body">
       <div class="field"><label>Your Name *</label><input type="text" id="custName" placeholder="e.g. Ahmad Khan"></div>
       <div class="field"><label>Phone Number *</label><input type="tel" id="custPhone" placeholder="e.g. 0300-1234567"></div>
@@ -540,7 +551,7 @@
         emoji:p.emoji||'📦', image_url:p.image_url, variants:p.variants
       })) : [];
       if(list.length === 0){
-        section.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);"><div style="font-size:48px;margin-bottom:12px;">🔥</div><div style="font-size:16px;font-weight:700;">Abhi koi trending product nahi<br><span style="font-size:13px;font-weight:400;">Admin panel se products ko trending mark karein</span></div></div>';
+        section.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);"><div style="font-size:48px;margin-bottom:12px;">🔥</div><div style="font-size:16px;font-weight:700;">No trending products yet<br><span style="font-size:13px;font-weight:400;">Mark products as trending from Admin Panel</span></div></div>';
         return;
       }
       section.innerHTML = '<div class="section-head"><div class="dot"></div><h2>🔥 Trending Products</h2></div><div class="grid">' +
@@ -559,11 +570,11 @@
   function showBlogs(){
     const section = document.getElementById('productSection');
     const blogs = [
-      {emoji:'💡', title:'Rs 280 mein best products kaunse hain?', date:'10 Jun 2026', desc:'Hamare dollar store mein sab se zyada bikne wale products ki list — jo har ghar ki zaroorat hain.'},
-      {emoji:'🎁', title:'Gift ideas Rs 280 mein — sabse unique choices', date:'8 Jun 2026', desc:'Kisi ko gift dena ho aur budget tight ho? Yeh ideas zaroor dekhein — sab Rs 280 mein!'},
-      {emoji:'🏠', title:'Ghar sajane ke liye saste aur sundar items', date:'5 Jun 2026', desc:'Decoration items jo aapke ghar ko khubsoorat banayein — bina ziada kharche ke.'},
-      {emoji:'🍎', title:'Dry Fruits ke fayde aur sahi istemal', date:'2 Jun 2026', desc:'Badam, Kaju aur dry fruits sehat ke liye kyun zaroori hain — aur hamare Mart mein kahan milenge.'},
-      {emoji:'✨', title:'Cosmetics guide — kya khareedna chahiye?', date:'30 May 2026', desc:'Aapki skin ke liye sahi cosmetics chunne ka tarika — hamare store mein available products ke saath.'},
+      {emoji:'💡', title:'Best Products for Rs 280 — Top Picks', date:'10 Jun 2026', desc:'Our best-selling dollar store products — essentials every home needs at just Rs 280.'},
+      {emoji:'🎁', title:'Gift Ideas Under Rs 280 — Unique & Affordable', date:'8 Jun 2026', desc:'Need a gift on a tight budget? Check out these unique ideas — all available for Rs 280!'},
+      {emoji:'🏠', title:'Affordable Home Decoration Items', date:'5 Jun 2026', desc:'Beautiful decoration items to make your home look stunning — without breaking the bank.'},
+      {emoji:'🍎', title:'Benefits of Dry Fruits & How to Use Them', date:'2 Jun 2026', desc:'Why almonds, cashews and dry fruits are essential for health — find them in our Mart section.'},
+      {emoji:'✨', title:'Cosmetics Guide — What to Buy for Your Skin', date:'30 May 2026', desc:'How to choose the right cosmetics for your skin type — with products available in our store.'},
     ];
     section.innerHTML = `
       <div class="section-head"><div class="dot"></div><h2>📝 Blogs & Tips</h2></div>
@@ -579,43 +590,41 @@
       </div>`;
   }
   function showAbout(){
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
     const section = document.getElementById('productSection');
     section.innerHTML = `<div style="max-width:600px;margin:30px auto;background:var(--cloud);border-radius:18px;padding:36px;border:1.5px solid var(--line);text-align:center;">
       <div style="font-size:64px;margin-bottom:16px;">🏪</div>
       <h2 style="font-size:26px;font-weight:900;color:var(--navy);margin-bottom:8px;"><span style="color:var(--green-dk);">R. Dollar</span> Shop & Mart</h2>
       <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">📍 Chakdara, Pakistan</p>
-      <p style="font-size:15px;line-height:1.7;color:var(--ink);margin-bottom:24px;">
-        Aapka apna <b>fixed-price dollar store</b> — jahaan aapko milein ge sab se achi cheezein, ek hi daam par. 
-        Plastic se Jewellery tak, Kitchen se Mart items tak — sab kuch ek jagah!
-      </p>
+      <p style="font-size:15px;line-height:1.7;color:var(--ink);margin-bottom:24px;">${t.aboutDesc}</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;">
         <div style="background:var(--paper);border-radius:12px;padding:16px;border:1.5px solid var(--line);">
           <div style="font-size:28px;">💵</div>
-          <div style="font-weight:800;color:var(--navy);margin-top:6px;">Fixed Price</div>
-          <div style="font-size:12px;color:var(--muted);">Rs 280 mein sab kuch</div>
+          <div style="font-weight:800;color:var(--navy);margin-top:6px;">${t.fixedPriceLabel}</div>
+          <div style="font-size:12px;color:var(--muted);">${t.fixedPriceSub}</div>
         </div>
         <div style="background:var(--paper);border-radius:12px;padding:16px;border:1.5px solid var(--line);">
           <div style="font-size:28px;">🚚</div>
-          <div style="font-weight:800;color:var(--navy);margin-top:6px;">Free Delivery</div>
-          <div style="font-size:12px;color:var(--muted);">4+ items pe bilkul free</div>
+          <div style="font-weight:800;color:var(--navy);margin-top:6px;">${t.freeDeliveryLabel}</div>
+          <div style="font-size:12px;color:var(--muted);">${t.freeDeliverySub}</div>
         </div>
         <div style="background:var(--paper);border-radius:12px;padding:16px;border:1.5px solid var(--line);">
           <div style="font-size:28px;">💳</div>
-          <div style="font-weight:800;color:var(--navy);margin-top:6px;">Cash on Delivery</div>
-          <div style="font-size:12px;color:var(--muted);">Pehle dekho, phir dena</div>
+          <div style="font-weight:800;color:var(--navy);margin-top:6px;">${t.codLabel}</div>
+          <div style="font-size:12px;color:var(--muted);">${t.codSub}</div>
         </div>
         <div style="background:var(--paper);border-radius:12px;padding:16px;border:1.5px solid var(--line);">
           <div style="font-size:28px;">📱</div>
-          <div style="font-weight:800;color:var(--navy);margin-top:6px;">WhatsApp Order</div>
-          <div style="font-size:12px;color:var(--muted);">Asaan aur fast</div>
+          <div style="font-weight:800;color:var(--navy);margin-top:6px;">${t.waLabel}</div>
+          <div style="font-size:12px;color:var(--muted);">${t.waSub}</div>
         </div>
       </div>
       <div style="background:var(--navy);border-radius:12px;padding:16px;color:#fff;margin-bottom:16px;">
-        <div style="font-weight:700;margin-bottom:8px;">📞 Contact Us</div>
+        <div style="font-weight:700;margin-bottom:8px;">📞 ${t.aboutContact}</div>
         <div style="font-size:18px;color:var(--yellow);font-weight:800;">0345-9522155</div>
         <div style="font-size:14px;opacity:.8;margin-top:4px;">0315-9392839</div>
       </div>
-      <a href="https://wa.me/923459522155" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;">💬 WhatsApp pe Baat Karein</a>
+      <a href="https://wa.me/923459522155" target="_blank" style="display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;">💬 ${t.aboutWa}</a>
     </div>`;
   }
   function renderProducts(){
@@ -699,7 +708,7 @@
     document.getElementById('pdCat').textContent = p.category;
     document.getElementById('pdName').textContent = p.name;
     document.getElementById('pdPrice').textContent = 'Rs '+p.price;
-    document.getElementById('pdDesc').textContent = p.description || 'Yeh product hamare store mein available hai. Order ke liye cart mein add karein ya WhatsApp pe message karein.';
+    document.getElementById('pdDesc').textContent = p.description || 'This product is available in our store. Add to cart or message us on WhatsApp to order.';
 
     // Video
     const videoEl = document.getElementById('pdVideo');
@@ -756,10 +765,123 @@
     msg+=`%0A*-------- ORDER --------*%0A`;
     cart.forEach(c=>{msg+=`${c.name} x${c.qty} = Rs ${c.price*c.qty}%0A`;});
     msg+=`*Total Items:* ${items}%0A*Total:* Rs ${total}%0A*Payment:* Cash on Delivery%0A`;
-    if(items>=4) msg+=`*Delivery:* FREE 🚚%0A`;
+    if(items>=4) msg+=`*Delivery:* FREE 🚚 (4+ items)%0A`;
     saveOrderToDB({customer_name:name,customer_phone:phone,customer_address:address,notes:note,items:cart.map(c=>({name:c.name,price:c.price,qty:c.qty})),subtotal:total,total:total,item_count:items,free_delivery:items>=4,status:'new'});
     window.open(`https://wa.me/${SHOP_WHATSAPP}?text=${msg}`,'_blank');
   }
+  // ===== MULTILINGUAL =====
+  const TRANSLATIONS = {
+    en: {
+      home:'Home', dollar:'Dollar Shop', mart:'Mart', trending:'Trending',
+      blogs:'Blogs', about:'About Us', search:'Search products...',
+      aboutDesc:'Your own fixed-price dollar store — where you get the best quality items at one fixed price. From Plastic to Jewellery, Kitchen to Mart items — everything in one place!',
+      aboutContact:'Contact Us', aboutWa:'Chat on WhatsApp',
+      fixedPriceLabel:'Fixed Price', fixedPriceSub:'Best quality, best value',
+      freeDeliveryLabel:'Free Delivery', freeDeliverySub:'Absolutely free on 4+ items',
+      codLabel:'Cash on Delivery', codSub:'See first, pay on delivery',
+      waLabel:'WhatsApp Order', waSub:'Easy and fast ordering',
+      cart:'Cart', categories:'Categories', addToCart:'+ Add to Cart',
+      placeOrder:'Place Order →', heroTitle:'Everything, <span>One Place</span>',
+      heroDesc:'From Plastic to Jewellery, Cosmetics to Mart items — order from home, confirm on WhatsApp.',
+      cashOnDelivery:'Cash on Delivery', freeDelivery:'Free delivery on 4+ items',
+      orderWhatsapp:'Order on WhatsApp', fixedPrice:'Fixed price store',
+      quality:'Quality items', bestRates:'Best rates',
+      noTrending:'No trending products yet', noTrendingDesc:'Mark products as trending from Admin Panel',
+      catDrawerBtn:'Categories', readMore:'Read more →',
+      orderDetails:'Order Details',
+      orderMsg:'Your order will be sent to us via WhatsApp. Cash on Delivery. Free delivery on 4+ items!',
+      name:'Full Name', phone:'Phone Number', address:'Delivery Address', note:'Note (optional)',
+      sendWhatsapp:'Send Order on WhatsApp', footerWa:'Order on WhatsApp',
+      defaultDesc:'This product is available in our store. Add to cart or message us on WhatsApp to order.',
+      addBtn:'🛒 Add to Cart', orderBtn:'💬 Order',
+    },
+    ru: {
+      home:'گھر', dollar:'ڈالر شاپ', mart:'مارٹ', trending:'ٹرینڈنگ',
+      blogs:'بلاگز', about:'ہمارے بارے میں', search:'مصنوعات تلاش کریں...',
+      aboutDesc:'آپ کا اپنا فکسڈ پرائس ڈالر اسٹور — جہاں آپ کو بہترین معیاری اشیاء ایک مقررہ قیمت پر ملتی ہیں۔ پلاسٹک سے جیولری تک، کچن سے مارٹ تک — سب کچھ ایک جگہ!',
+      aboutContact:'ہم سے رابطہ کریں', aboutWa:'واٹس ایپ پر بات کریں',
+      fixedPriceLabel:'مقررہ قیمت', fixedPriceSub:'بہترین معیار، بہترین قیمت',
+      freeDeliveryLabel:'مفت ڈیلیوری', freeDeliverySub:'4+ اشیاء پر بالکل مفت',
+      codLabel:'گھر پر ادائیگی', codSub:'پہلے دیکھیں، پھر ادائیگی کریں',
+      waLabel:'واٹس ایپ آرڈر', waSub:'آسان اور تیز آرڈرنگ',
+      cart:'کارٹ', categories:'زمرے', addToCart:'+ کارٹ میں شامل کریں',
+      placeOrder:'آرڈر دیں →', heroTitle:'سب کچھ، <span>ایک جگہ</span>',
+      heroDesc:'پلاسٹک سے جیولری تک، کاسمیٹکس سے مارٹ تک — گھر بیٹھے آرڈر کریں، واٹس ایپ پر تصدیق کریں۔',
+      cashOnDelivery:'ادائیگی گھر پر', freeDelivery:'4+ اشیاء پر مفت ڈیلیوری',
+      orderWhatsapp:'واٹس ایپ پر آرڈر کریں', fixedPrice:'مقررہ قیمت اسٹور',
+      quality:'معیاری اشیاء', bestRates:'بہترین نرخ',
+      noTrending:'ابھی کوئی ٹرینڈنگ پروڈکٹ نہیں', noTrendingDesc:'ایڈمن پینل سے ٹرینڈنگ مارک کریں',
+      catDrawerBtn:'زمرے', readMore:'مزید پڑھیں →',
+      orderDetails:'آرڈر کی تفصیل',
+      orderMsg:'آپ کا آرڈر واٹس ایپ پر بھیجا جائے گا۔ گھر پر ادائیگی۔ 4+ اشیاء پر مفت ڈیلیوری!',
+      name:'پورا نام', phone:'فون نمبر', address:'ڈیلیوری کا پتہ', note:'نوٹ (اختیاری)',
+      sendWhatsapp:'واٹس ایپ پر آرڈر بھیجیں', footerWa:'واٹس ایپ پر آرڈر کریں',
+      defaultDesc:'یہ پروڈکٹ ہمارے اسٹور میں دستیاب ہے۔ کارٹ میں شامل کریں یا واٹس ایپ پر میسج کریں۔',
+      addBtn:'🛒 کارٹ میں شامل کریں', orderBtn:'💬 آرڈر',
+    },
+    ro: {
+      home:'Home', dollar:'Dollar Shop', mart:'Mart', trending:'Trending',
+      blogs:'Blogs', about:'Hamare Baare Mein', search:'Products talash karein...',
+      aboutDesc:'Aapka apna fixed-price dollar store — jahaan aapko milein ge sab se achi cheezein, ek hi daam par. Plastic se Jewellery tak, Kitchen se Mart tak — sab kuch ek jagah!',
+      aboutContact:'Humse Rabta Karein', aboutWa:'WhatsApp pe Baat Karein',
+      fixedPriceLabel:'Muqarrar Qeemat', fixedPriceSub:'Behtareen quality, behtareen daam',
+      freeDeliveryLabel:'Muft Delivery', freeDeliverySub:'4+ items pe bilkul free',
+      codLabel:'Ghar par Adaigi', codSub:'Pehle dekho, phir dena',
+      waLabel:'WhatsApp Order', waSub:'Asaan aur fast ordering',
+      cart:'Cart', categories:'Categories', addToCart:'+ Cart Mein Shamil Karein',
+      placeOrder:'Order Dein →', heroTitle:'Sab Kuch, <span>Ek Jagah</span>',
+      heroDesc:'Plastic se Jewellery tak, Cosmetics se Mart tak — ghar baithe order karein, WhatsApp pe confirm karein.',
+      cashOnDelivery:'Cash on Delivery', freeDelivery:'4+ items pe Free Delivery',
+      orderWhatsapp:'WhatsApp pe Order Karein', fixedPrice:'Fixed price store',
+      quality:'Quality items', bestRates:'Best rates',
+      noTrending:'Abhi koi trending product nahi', noTrendingDesc:'Admin panel se trending mark karein',
+      catDrawerBtn:'Categories', readMore:'Aur parhein →',
+      orderDetails:'Order ki Tafseelat',
+      orderMsg:'Aapka order WhatsApp pe bheja jayega. Cash on delivery. 4+ items pe free delivery!',
+      name:'Poora Naam', phone:'Phone Number', address:'Delivery ka Pata', note:'Note (ikhtiyari)',
+      sendWhatsapp:'WhatsApp pe Order Bhejein', footerWa:'WhatsApp pe Order Karein',
+      defaultDesc:'Yeh product hamare store mein available hai. Cart mein add karein ya WhatsApp pe message karein.',
+      addBtn:'🛒 Cart Mein Add Karein', orderBtn:'💬 Order',
+    }
+  };
+
+  let currentLang = 'en';
+
+  function setLang(lang){
+    currentLang = lang;
+    const t = TRANSLATIONS[lang];
+    // Set RTL for Urdu
+    document.body.dir = lang === 'ru' ? 'rtl' : 'ltr';
+    // Update nav
+    const navMap = {home:'hnav-home', dollar:'hnav-dollar', mart:'hnav-mart', trending:'hnav-trending', blogs:'hnav-blogs', about:'hnav-about'};
+    const el_home = document.getElementById('hnav-home'); if(el_home) el_home.innerHTML = '🏠 '+t.home;
+    const el_dollar = document.getElementById('hnav-dollar'); if(el_dollar) el_dollar.innerHTML = '💵 '+t.dollar;
+    const el_mart = document.getElementById('hnav-mart'); if(el_mart) el_mart.innerHTML = '🏪 '+t.mart;
+    const el_trending = document.getElementById('hnav-trending'); if(el_trending) el_trending.innerHTML = '🔥 '+t.trending;
+    const el_blogs = document.getElementById('hnav-blogs'); if(el_blogs) el_blogs.innerHTML = '📝 '+t.blogs;
+    const el_about = document.getElementById('hnav-about'); if(el_about) el_about.innerHTML = 'ℹ️ '+t.about;
+    // Search placeholder
+    const srch = document.getElementById('search'); if(srch) srch.placeholder = '🔍 '+t.search;
+    // Cart
+    const cartBtn = document.querySelector('.cart-btn'); if(cartBtn) cartBtn.childNodes[0].textContent = '🛒 '+t.cart;
+    // Hero
+    const heroH1 = document.querySelector('.hero h1'); if(heroH1) heroH1.innerHTML = t.heroTitle;
+    const heroP = document.querySelector('.hero p'); if(heroP) heroP.textContent = t.heroDesc;
+    const badges = document.querySelectorAll('.hero .badge');
+    if(badges[0]) badges[0].textContent = '💵 '+t.cashOnDelivery;
+    if(badges[1]) badges[1].textContent = '🚚 '+t.freeDelivery;
+    // Footer
+    const footerWa = document.querySelector('.f-wa'); if(footerWa) footerWa.textContent = '💬 '+t.footerWa;
+    // Lang buttons
+    ['en','ru','ro'].forEach(l => {
+      const btn = document.getElementById('lang-'+l);
+      if(btn) btn.classList.toggle('active', l===lang);
+    });
+    // Re-render to update "Add to Cart" buttons etc
+    renderChips();
+    renderProducts();
+  }
+
   loadProducts();
   applyWebsiteTheme();
 
