@@ -52,13 +52,13 @@
 
   /* ---- Hero ---- */
   .hero{max-width:1100px;margin:10px auto;padding:0 16px;}
-  .hero-inner{background:var(--yellow);border-radius:14px;padding:16px 20px;color:var(--navy);position:relative;overflow:hidden;border:3px solid var(--navy);}
+  .hero-inner{background:var(--yellow);border-radius:14px;padding:14px 16px;color:var(--navy);position:relative;overflow:hidden;border:3px solid var(--navy);}
   .hero-inner::after{content:"💵";position:absolute;right:-6px;bottom:-18px;font-size:80px;opacity:.16;}
-  .hero .mascot{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:46px;opacity:.9;}
-  .hero h1{font-size:20px;line-height:1.2;margin-bottom:4px;font-weight:900;}
+  .hero .mascot{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:42px;opacity:.9;}
+  .hero h1{font-size:15px;line-height:1.2;margin-bottom:2px;font-weight:800;}
   .hero h1 span{color:var(--green-dk);}
-  .hero p{font-size:12px;max-width:65%;font-weight:500;line-height:1.4;margin-bottom:0;}
-  .hero .badge{display:inline-block;background:var(--navy);color:var(--yellow);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px;margin-right:6px;}
+  .hero p{font-size:11px;max-width:65%;font-weight:500;line-height:1.3;margin-bottom:0;}
+  .hero .badge{display:inline-block;background:var(--navy);color:var(--yellow);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:6px;margin-right:6px;}
   .hero .badge-green{background:var(--green-dk);color:#fff;}
 
   /* ---- Sidebar layout ---- */
@@ -177,7 +177,7 @@
   footer .f-phone{color:var(--yellow);font-weight:700;font-size:15px;margin:8px 0;}
   footer .f-wa{display:inline-block;margin-top:10px;background:#25D366;color:#fff;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;}
 
-  .demo-banner{background:var(--green);color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:600;}
+
 
   /* Hamburger menu */
   .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;}
@@ -192,6 +192,19 @@
   .mn-logo span{font-size:18px;font-weight:900;color:#fff;}
   .mn-logo span b{color:var(--green);}
 
+  /* Mobile category drawer */
+  .cat-drawer-btn{display:none;width:calc(100% - 20px);margin:8px 10px;padding:11px 16px;background:var(--navy);color:var(--yellow);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;}
+  .cat-drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:80;}
+  .cat-drawer-overlay.open{display:block;}
+  .cat-drawer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:90;max-height:70vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s;}
+  .cat-drawer.open{transform:translateY(0);}
+  .cat-drawer-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;}
+  .cat-drawer-head h3{font-size:16px;font-weight:800;color:var(--navy);}
+  .cat-drawer-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
+  .cat-drawer-item{display:flex;align-items:center;gap:10px;padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;border-bottom:1px solid var(--line);color:var(--ink);}
+  .cat-drawer-item:hover{background:var(--paper);}
+  .cat-drawer-item.active{color:var(--navy);background:#EEF2FF;font-weight:800;}
+
   @media(max-width:768px){
     /* Header */
     .header-top{padding:10px 12px;}
@@ -199,27 +212,17 @@
     .logo-text b{font-size:18px;letter-spacing:0;}
     .logo-text small{font-size:10px;letter-spacing:1px;}
     .cart-btn{padding:8px 12px;font-size:13px;}
-    /* Nav - scrollable single row */
-    .header-nav{
-      overflow-x:auto;
-      scrollbar-width:none;
-      padding:0 10px 8px;
-      gap:4px;
-      justify-content:flex-start;
-    }
+    /* Nav */
+    .header-nav{overflow-x:auto;scrollbar-width:none;padding:0 10px 8px;gap:4px;justify-content:flex-start;}
     .header-nav::-webkit-scrollbar{display:none;}
     .hnav-item{white-space:nowrap;font-size:12px;padding:6px 12px;flex-shrink:0;}
     /* Layout */
-    .main-layout{flex-direction:column;padding:8px 10px;gap:10px;}
-    .cat-sidebar{width:100%;position:static;}
-    .cat-sidebar-item{padding:8px 12px;font-size:13px;}
+    .main-layout{flex-direction:column;padding:8px 10px;gap:0;}
+    .cat-sidebar{display:none !important;}
+    .cat-drawer-btn{display:flex;}
     /* Grid */
     .grid{grid-template-columns:repeat(2,1fr);gap:10px;}
-    .hero{padding:0 10px;margin:10px auto;}
-    .hero-inner{padding:18px 16px;}
-    .hero h1{font-size:20px;}
-    .hero p{max-width:70%;font-size:12px;}
-    .hero .mascot{font-size:42px;}
+    .hero{padding:0 10px;margin:8px auto;}
   }
 
   @media(max-width:500px){
@@ -233,7 +236,7 @@
 </style>
 </head>
 <body>
-<div class="demo-banner">🎨 DEMO PREVIEW - Asli products database se ayenge</div>
+
 <header>
   <div class="header-top">
     <div class="logo">
@@ -278,6 +281,21 @@
   <p>Plastic se Jewellery tak, Cosmetics se Mart items tak — ghar baithe order karein, WhatsApp pe confirm.</p>
   <div class="mascot">🤓</div>
 </div></div>
+<!-- Mobile Category Drawer Button -->
+<button class="cat-drawer-btn" id="catDrawerBtn" onclick="openCatDrawer()">
+  <span>📂 Categories</span> <span>☰</span>
+</button>
+
+<!-- Category Drawer -->
+<div class="cat-drawer-overlay" id="catDrawerOverlay" onclick="closeCatDrawer()"></div>
+<div class="cat-drawer" id="catDrawer">
+  <div class="cat-drawer-head">
+    <h3>📂 Categories</h3>
+    <button class="cat-drawer-close" onclick="closeCatDrawer()">✕</button>
+  </div>
+  <div id="catDrawerList"></div>
+</div>
+
 <div class="main-layout">
   <div class="cat-sidebar" id="catSidebar">
     <div class="cat-sidebar-title">📂 Categories</div>
@@ -456,12 +474,24 @@
     else if(activeStore === 'dollar') allCats = ['All', ...DOLLAR_CATS];
     else allCats = ['All', ...DOLLAR_CATS, ...MART_CATS];
     PRODUCTS.forEach(p=>{ if(!allCats.includes(p.cat)) allCats.push(p.cat); });
-    sidebar.innerHTML = '<div class="cat-sidebar-title">📂 Categories</div>' +
-      allCats.map(c => {
+    const itemsHtml = allCats.map(c => {
+      const isMart = MART_CATS.includes(c);
+      const icon = CAT_ICONS[c] || '📦';
+      return `<div class="cat-sidebar-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\'")}')"><span class="cat-icon">${icon}</span>${c}${isMart?'<span class="mart-label">Mart</span>':''}</div>`;
+    }).join('');
+    sidebar.innerHTML = '<div class="cat-sidebar-title">📂 Categories</div>' + itemsHtml;
+    // Also update mobile drawer
+    const drawerList = document.getElementById('catDrawerList');
+    if(drawerList){
+      drawerList.innerHTML = allCats.map(c => {
         const isMart = MART_CATS.includes(c);
         const icon = CAT_ICONS[c] || '📦';
-        return `<div class="cat-sidebar-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\'")}')"><span class="cat-icon">${icon}</span>${c}${isMart?'<span class="mart-label">Mart</span>':''}</div>`;
+        return `<div class="cat-drawer-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\'")}');closeCatDrawer()"><span>${icon}</span>${c}${isMart?' <span style=\"font-size:10px;background:var(--green-dk);color:#fff;padding:1px 6px;border-radius:4px;margin-left:4px;\">Mart</span>':''}</div>`;
       }).join('');
+    }
+    // Update drawer button text
+    const btn = document.getElementById('catDrawerBtn');
+    if(btn) btn.innerHTML = `<span>📂 ${activeCat==='All'?'Categories':activeCat}</span> <span>☰</span>`;
   }
   const MART_STORE_CATS = ['Cold Drinks','Snacks','General','Dry Fruits','Ice Cream','Sweets'];
   let activeStore = 'dollar'; // 'dollar' or 'mart'
@@ -471,6 +501,17 @@
     activeCat = 'All';
     renderChips();
     renderProducts();
+  }
+
+  function openCatDrawer(){
+    document.getElementById('catDrawerOverlay').classList.add('open');
+    document.getElementById('catDrawer').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeCatDrawer(){
+    document.getElementById('catDrawerOverlay').classList.remove('open');
+    document.getElementById('catDrawer').classList.remove('open');
+    document.body.style.overflow='';
   }
 
   function openMobileNav(){ document.getElementById('mobileNav').classList.add('open'); document.body.style.overflow='hidden'; }
