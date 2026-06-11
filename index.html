@@ -220,7 +220,7 @@
     const section = document.getElementById('productSection');
     section.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);font-size:15px;">⏳ Products load ho rahe hain...</div>';
     try {
-      const data = await sbFetch('/rest/v1/products?is_active=eq.true&order=category,name');
+      const data = await sbFetch('/rest/v1/products?order=category,name');
       if(data && data.length > 0) {
         PRODUCTS = data.map(p => ({
           id: p.id,
