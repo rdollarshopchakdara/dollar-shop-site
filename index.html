@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dollar Shop & Mart - Chakdara</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* ============ BRAND THEME (from logo/banner) ============
      navy    #14215C  deep navy blue (logo circle, text, headers)
@@ -14,16 +17,17 @@
      cloud   #FFFFFF  cards
   */
   :root{
-    --navy:#14215C; --navy-light:#1E2E73; --yellow:#F5D311; --yellow-soft:#FCEB7A;
-    --green:#4CAF7D; --green-dk:#2E8B57; --paper:#FFFDF5; --cloud:#FFFFFF;
-    --ink:#14215C; --muted:#7A8199; --line:#E6E3D5; --shadow:0 4px 16px rgba(20,33,92,.10);
+    --navy:#1B2A6B; --navy-light:#2B3C96; --yellow:#FFD23F; --yellow-soft:#FFE588;
+    --green:#2BB673; --green-dk:#168F58; --paper:#F8F7F1; --cloud:#FFFFFF;
+    --ink:#1B2A6B; --muted:#76809E; --line:#E9E6DA; --shadow:0 6px 22px rgba(27,42,107,.12);
+    --grad:linear-gradient(135deg,#1B2A6B 0%,#34439E 100%);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  body{font-family:'Poppins','Segoe UI',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;}
 
   /* ---- Header ---- */
   /* ---- Header ---- */
-  header{position:sticky;top:0;z-index:50;background:var(--navy);}
+  header{position:sticky;top:0;z-index:50;background:var(--grad);box-shadow:0 3px 14px rgba(27,42,107,.25);}
   .header-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;max-width:1100px;margin:0 auto;gap:12px;}
   .logo{display:flex;align-items:center;gap:13px;flex:1;}
   .logo-img{width:60px;height:60px;border-radius:50%;flex-shrink:0;border:2px solid var(--yellow);object-fit:cover;}
@@ -31,14 +35,15 @@
   .logo-text b{font-size:34px;letter-spacing:1px;display:block;line-height:1.1;color:var(--nav-text,#fff);font-weight:900;text-transform:uppercase;}
   .logo-text b span{color:inherit;}
   .logo-text small{font-size:15px;color:var(--yellow);letter-spacing:2px;font-weight:700;display:block;margin-top:3px;}
-  .cart-btn{position:relative;background:var(--yellow);color:var(--navy);border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;}
+  .cart-btn{position:relative;background:linear-gradient(135deg,var(--yellow),#FFC42E);color:var(--navy);border:none;border-radius:999px;padding:10px 18px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(255,196,46,.45);transition:transform .12s;}
+  .cart-btn:hover{transform:translateY(-1px);}
   .cart-count{position:absolute;top:-8px;right:-8px;background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--navy);}
   .search-bar{max-width:1100px;margin:0 auto;padding:0 16px 12px;}
   .lang-switcher{display:flex;gap:3px;background:rgba(0,0,0,.2);border-radius:8px;padding:3px;flex-shrink:0;}
   .lang-btn{background:transparent;border:none;color:rgba(255,255,255,.7);font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;cursor:pointer;transition:all .15s;}
   .lang-btn.active{background:var(--yellow);color:var(--navy);}
   .lang-btn:hover:not(.active){background:rgba(255,255,255,.15);color:#fff;}
-  .search-bar input{width:100%;padding:11px 16px;border:none;border-radius:12px;font-size:14px;background:rgba(255,255,255,.95);}
+  .search-bar input{width:100%;padding:12px 18px;border:none;border-radius:999px;font-size:14px;background:rgba(255,255,255,.97);box-shadow:inset 0 1px 3px rgba(0,0,0,.08);}
   .search-bar input:focus{outline:2px solid var(--yellow);}
   .header-nav{display:flex;align-items:center;justify-content:center;gap:4px;padding:0 16px 8px;max-width:1100px;margin:0 auto;}
   .hnav-item{color:var(--nav-text-muted,rgba(255,255,255,.75));font-size:13px;font-weight:600;padding:7px 18px;border-radius:20px;cursor:pointer;transition:all .15s;}
@@ -51,25 +56,36 @@
   @media(max-width:500px){.cat-scroll{top:107px;}}
   .cat-chips{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;}
   .cat-chips::-webkit-scrollbar{display:none;}  .chip{white-space:nowrap;padding:7px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--paper);font-size:13px;font-weight:600;cursor:pointer;color:var(--ink);transition:all .15s;}
-  .chip:hover{border-color:var(--green);}
-  .chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .chip:hover{border-color:var(--yellow);transform:translateY(-1px);}
+  .chip.active{background:var(--yellow);color:var(--navy);border-color:var(--navy);box-shadow:0 3px 10px rgba(255,210,63,.4);}
 
   /* ---- Hero ---- */
   .hero{max-width:1100px;margin:10px auto;padding:0 16px;}
-  .hero-inner{background:var(--yellow);border-radius:14px;padding:14px 16px;color:var(--navy);position:relative;overflow:hidden;border:3px solid var(--navy);}
-  .hero-inner::after{content:"💵";position:absolute;right:-6px;bottom:-18px;font-size:80px;opacity:.16;}
-  .hero .mascot{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:42px;opacity:.9;}
-  .hero h1{font-size:15px;line-height:1.2;margin-bottom:2px;font-weight:800;}
-  .hero h1 span{color:var(--green-dk);}
-  .hero p{font-size:10px;max-width:65%;font-weight:500;line-height:1.3;margin-bottom:0;}
-  .hero .badge-row{display:flex;gap:6px;flex-wrap:nowrap;align-items:center;margin-bottom:6px;}
-  .hero .badge{display:inline-block;background:var(--navy);color:var(--yellow);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;}
-  .hero .badge-green{background:var(--green-dk);color:#fff;}
+  .hero-inner{background:var(--grad);border-radius:20px;padding:18px 18px 16px;color:#fff;position:relative;overflow:visible;border:none;box-shadow:0 12px 30px rgba(27,42,107,.28);min-height:140px;}
+  .hero-inner::before{content:"";position:absolute;top:-70px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(255,210,63,.18);}
+  
+  .hero .swing-tag{position:absolute;right:16px;top:4px;transform-origin:50% -8px;animation:tagSway 5s ease-in-out infinite;z-index:2;}
+  @keyframes tagSway{0%,100%{transform:rotate(6deg);}50%{transform:rotate(-4deg);}}
+  @media (prefers-reduced-motion: reduce){.hero .swing-tag{animation:none;transform:rotate(5deg);}}
+  .hero .tag-string{display:block;margin:0 auto;}
+  .hero .price-tag{position:relative;width:114px;background:#fff;border:2px solid var(--navy);border-radius:12px;padding:15px 10px 9px;text-align:center;box-shadow:4px 6px 0 rgba(10,16,50,.25);}
+  .hero .price-tag::before{content:"";position:absolute;top:7px;left:50%;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;background:var(--navy-light);border:2px solid var(--navy);}
+  .hero .pt-top{font-size:7px;font-weight:700;letter-spacing:1.8px;color:#8A90A8;margin-top:5px;}
+  .hero .pt-price{font-size:27px;font-weight:800;color:#FF5A3C;line-height:1.05;letter-spacing:-1px;}
+  .hero .pt-price span{font-size:12px;font-weight:700;color:var(--navy);vertical-align:9px;margin-right:1px;letter-spacing:0;}
+  .hero .pt-sub{font-size:6.5px;font-weight:600;color:var(--green-dk);border-top:1px dashed var(--line);margin-top:6px;padding-top:5px;letter-spacing:.3px;white-space:nowrap;}
+  .hero h1{font-size:17px;line-height:1.25;margin-bottom:3px;font-weight:800;color:#fff;letter-spacing:-.2px;}
+  .hero h1 span{color:var(--yellow);}
+  .hero p{font-size:10.5px;max-width:62%;font-weight:400;line-height:1.45;margin-bottom:0;color:rgba(255,255,255,.85);}
+  .hero .badge-row{display:flex;gap:8px;flex-wrap:nowrap;align-items:center;margin-bottom:8px;}
+  .hero .badge{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#FF7A45,#FF5A3C);color:#fff;border:2px solid var(--navy);padding:3px 13px 3px 4px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:3px 4px 0 rgba(10,16,50,.25);}
+  .hero .badge i{font-style:normal;width:23px;height:23px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;box-shadow:inset 0 0 0 1.5px rgba(27,42,107,.15);}
+  .hero .badge-green{background:linear-gradient(135deg,#23B873,#149A5C);}
 
   /* ---- Sidebar layout ---- */
   .main-layout{display:flex;max-width:1100px;margin:0 auto;padding:16px 16px 24px;gap:20px;align-items:flex-start;}
   .cat-sidebar{width:200px;flex-shrink:0;background:var(--cloud);border-radius:14px;border:1.5px solid var(--line);overflow:hidden;position:sticky;top:130px;}
-  .cat-sidebar-title{background:var(--navy);color:#fff;padding:12px 16px;font-size:13px;font-weight:800;letter-spacing:.3px;}
+  .cat-sidebar-title{background:var(--grad);color:#fff;padding:12px 16px;font-size:13px;font-weight:800;letter-spacing:.3px;}
   .cat-sidebar-item{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink);border-bottom:1px solid var(--line);transition:all .12s;}
   .cat-sidebar-item:last-child{border:none;}
   .cat-sidebar-item:hover{background:var(--paper);color:var(--navy);}
@@ -88,22 +104,24 @@
   /* ---- Section ---- */
   .section{max-width:1100px;margin:0 auto;padding:8px 16px 24px;}
   .section-head{display:flex;align-items:center;gap:10px;margin:22px 0 12px;}
-  .section-head .dot{width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--green-dk);}
-  .section-head h2{font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--navy);}
+  .section-head .dot{width:5px;height:22px;border-radius:3px;background:var(--yellow);border:none;}
+  .section-head h2{font-size:20px;font-weight:800;letter-spacing:-.4px;color:var(--navy);}
   .section-head.mart .dot{background:var(--green);border-color:var(--green-dk);}
 
   /* ---- Product grid ---- */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-  .card{background:var(--cloud);border-radius:14px;overflow:hidden;border:1.5px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s;}
-  .card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.12);border-color:var(--green);}
+  .card{background:var(--cloud);border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 2px 10px rgba(27,42,107,.06);display:flex;flex-direction:column;transition:transform .16s,box-shadow .16s,border-color .16s;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(27,42,107,.16);border-color:var(--yellow);}
+  .card:hover .card-img img{transform:scale(1.06);}
+  .card-img img{transition:transform .35s;}
   .card-img{aspect-ratio:1;background:linear-gradient(135deg,var(--paper),#FFF8E0);display:flex;align-items:center;justify-content:center;font-size:46px;border-bottom:1px solid var(--line);position:relative;}
-  .card-cat{position:absolute;top:8px;left:8px;background:var(--navy);color:var(--yellow);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;}
+  .card-cat{position:absolute;top:9px;left:9px;background:var(--yellow);color:var(--navy);font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.15);}
   .card-body{padding:10px 12px 12px;flex:1;display:flex;flex-direction:column;}
   .card-name{font-size:14px;font-weight:600;line-height:1.3;margin-bottom:6px;flex:1;color:var(--navy);}
   .card-price{font-size:17px;font-weight:800;color:var(--green-dk);margin-bottom:10px;}
   .card-price small{font-size:11px;color:var(--muted);font-weight:500;}
-  .add-btn{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;letter-spacing:.3px;}
-  .add-btn:hover{background:var(--green-dk);transform:scale(1.02);}
+  .add-btn{background:var(--grad);color:#fff;border:none;border-radius:999px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;letter-spacing:.3px;}
+  .add-btn:hover{background:var(--yellow);color:var(--navy);transform:scale(1.02);box-shadow:0 4px 12px rgba(255,210,63,.45);}
   .add-btn:active{transform:scale(.97);}
   .variant-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
   .variant-btn{flex:1;min-width:44px;background:var(--paper);border:1.5px solid var(--line);border-radius:7px;padding:6px 4px;font-size:11px;font-weight:700;cursor:pointer;color:var(--navy);}
@@ -232,11 +250,15 @@
 
   @media(max-width:500px){
     .cat-scroll{top:107px;}
-    .hero p{max-width:82%;font-size:11px;line-height:1.35;}
+    .hero p{max-width:60%;font-size:11px;line-height:1.35;}
     .hero h1{font-size:19px;}
     .hero .badge{font-size:10.5px;padding:4px 8px;}
     .hero .badge-row{gap:5px;}
-    .hero .mascot{font-size:46px;right:8px;}
+    .hero .swing-tag{right:10px;top:2px;}
+    .hero .price-tag{width:94px;padding:12px 8px 7px;}
+    .hero .pt-price{font-size:22px;}
+    .hero .pt-price span{font-size:10px;vertical-align:7px;}
+    .hero .pt-sub{font-size:6px;}
     .grid{grid-template-columns:repeat(2,1fr);gap:10px;}
     .card-img{font-size:38px;}
   }
@@ -290,12 +312,19 @@
 
 <div class="hero"><div class="hero-inner">
   <div class="badge-row">
-    <span class="badge">💵 Cash on Delivery</span>
-    <span class="badge badge-green">🚚 Free delivery on 4+ items</span>
+    <span class="badge"><i>💵</i>Cash on Delivery</span>
+    <span class="badge badge-green"><i>🚚</i>Free delivery on 4+ items</span>
   </div>
-  <h1>Everything, <span>One Place</span></h1>
-  <p>From Plastic to Jewellery, Cosmetics to Mart items — order from home, confirm on WhatsApp.</p>
-  <div class="mascot">🤓</div>
+  <h1>Everything in <span>One Place</span></h1>
+  <p>Everything in our Dollar Shop for Rs 280. Order online, pay cash on delivery across Chakdara.</p>
+  <div class="swing-tag" aria-hidden="true">
+    <svg class="tag-string" width="34" height="20" viewBox="0 0 34 20"><path d="M17 0 Q 14 11 17 19" stroke="rgba(255,255,255,.75)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    <div class="price-tag">
+      <div class="pt-top">EVERY ITEM</div>
+      <div class="pt-price"><span>Rs</span>280</div>
+      <div class="pt-sub">Fixed price · No haggling</div>
+    </div>
+  </div>
 </div></div>
 <!-- Mobile Category Drawer Button -->
 <button class="cat-drawer-btn" id="catDrawerBtn" onclick="openCatDrawer()">
@@ -786,8 +815,8 @@
       codLabel:'Cash on Delivery', codSub:'See first, pay on delivery',
       waLabel:'WhatsApp Order', waSub:'Easy and fast ordering',
       cart:'Cart', categories:'Categories', addToCart:'+ Add to Cart',
-      placeOrder:'Place Order →', heroTitle:'Everything, <span>One Place</span>',
-      heroDesc:'From Plastic to Jewellery, Cosmetics to Mart items — order from home, confirm on WhatsApp.',
+      placeOrder:'Place Order →', heroTitle:'Everything in <span>One Place</span>',
+      heroDesc:'Everything in our Dollar Shop for Rs 280. Order online, pay cash on delivery across Chakdara.',
       cashOnDelivery:'Cash on Delivery', freeDelivery:'Free delivery on 4+ items',
       orderWhatsapp:'Order on WhatsApp', fixedPrice:'Fixed price store',
       quality:'Quality items', bestRates:'Best rates',
@@ -810,8 +839,8 @@
       codLabel:'گھر پر ادائیگی', codSub:'پہلے دیکھیں، پھر ادائیگی کریں',
       waLabel:'واٹس ایپ آرڈر', waSub:'آسان اور تیز آرڈرنگ',
       cart:'کارٹ', categories:'زمرے', addToCart:'+ کارٹ میں شامل کریں',
-      placeOrder:'آرڈر دیں →', heroTitle:'سب کچھ، <span>ایک جگہ</span>',
-      heroDesc:'پلاسٹک سے جیولری تک، کاسمیٹکس سے مارٹ تک — گھر بیٹھے آرڈر کریں، واٹس ایپ پر تصدیق کریں۔',
+      placeOrder:'آرڈر دیں →', heroTitle:'سب کچھ <span>ایک جگہ</span>',
+      heroDesc:'ڈالر شاپ کی ہر چیز صرف 280 روپے میں۔ آن لائن آرڈر کریں، ادائیگی ڈیلیوری پر کریں۔',
       cashOnDelivery:'ادائیگی گھر پر', freeDelivery:'4+ اشیاء پر مفت ڈیلیوری',
       orderWhatsapp:'واٹس ایپ پر آرڈر کریں', fixedPrice:'مقررہ قیمت اسٹور',
       quality:'معیاری اشیاء', bestRates:'بہترین نرخ',
@@ -834,8 +863,8 @@
       codLabel:'Ghar par Adaigi', codSub:'Pehle dekho, phir dena',
       waLabel:'WhatsApp Order', waSub:'Asaan aur fast ordering',
       cart:'Cart', categories:'Categories', addToCart:'+ Cart Mein Shamil Karein',
-      placeOrder:'Order Dein →', heroTitle:'Sab Kuch, <span>Ek Jagah</span>',
-      heroDesc:'Plastic se Jewellery tak, Cosmetics se Mart tak — ghar baithe order karein, WhatsApp pe confirm karein.',
+      placeOrder:'Order Dein →', heroTitle:'Sab Kuch <span>Ek Jagah</span>',
+      heroDesc:'Dollar Shop ki har cheez sirf Rs 280 mein. Online order karein, adaigi delivery par karein.',
       cashOnDelivery:'Cash on Delivery', freeDelivery:'4+ items pe Free Delivery',
       orderWhatsapp:'WhatsApp pe Order Karein', fixedPrice:'Fixed price store',
       quality:'Quality items', bestRates:'Best rates',
