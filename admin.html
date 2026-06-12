@@ -769,29 +769,19 @@ async function loadDashboard(){
 
 // ===== THEMES =====
 const THEMES = [
-  // ORIGINAL
-  {id:'original',    name:'💛 Original',      nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
-  {id:'dollar_bill', name:'💵 Dollar Bill',   nav:'#2D5016', yellow:'#8BC34A', green:'#4CAF50', greenDk:'#33691E', paper:'#F5F5DC'},
-  {id:'foundations', name:'🔷 Foundations',  nav:'#3D52A0', yellow:'#7091E6', green:'#8697C4', greenDk:'#3D52A0', paper:'#EDE8F5'},
-  {id:'soft_lav',    name:'🌸 Soft Lavender', nav:'#7B7FA8', yellow:'#A8ABCF', green:'#9B9EC0', greenDk:'#6B6E96', paper:'#F7F7FB'},
-  {id:'clean_light', name:'🌤️ Clean Light',   nav:'#4B5563', yellow:'#10B981', green:'#10B981', greenDk:'#059669', paper:'#F9FAFB', lightNav:true},
-  // HEEMU
-  {id:'heemu',       name:'🌿 Heemu',         nav:'#1F2937', yellow:'#10B981', green:'#10B981', greenDk:'#047857', paper:'#FAF5EE'},
-  // LIGHT
-  {id:'pure_white',  name:'🤍 Pure White',    nav:'#E5E7EB', yellow:'#10B981', green:'#10B981', greenDk:'#059669', paper:'#FFFFFF', lightNav:true},
-  {id:'off_white',   name:'🍦 Off White',     nav:'#D1D5DB', yellow:'#F59E0B', green:'#6EE7B7', greenDk:'#34D399', paper:'#FAFAFA', lightNav:true},
-  {id:'soft_gray',   name:'🩶 Soft Gray',     nav:'#475569', yellow:'#38BDF8', green:'#34D399', greenDk:'#0EA5E9', paper:'#F1F5F9', lightNav:true},
-  {id:'sky_light',   name:'☁️ Sky Light',     nav:'#1E40AF', yellow:'#FDE68A', green:'#60A5FA', greenDk:'#3B82F6', paper:'#EFF6FF'},
-  {id:'mint_light',  name:'🌿 Mint Light',    nav:'#065F46', yellow:'#FDE68A', green:'#6EE7B7', greenDk:'#059669', paper:'#ECFDF5'},
-  {id:'warm_cream',  name:'🧈 Warm Cream',    nav:'#78350F', yellow:'#FCD34D', green:'#D97706', greenDk:'#B45309', paper:'#FFFBEB'},
-  // DARK
-  {id:'carbon',      name:'⚫ Carbon Dark',   nav:'#111827', yellow:'#FBBF24', green:'#34D399', greenDk:'#10B981', paper:'#1F2937'},
-  {id:'midnight',    name:'🌙 Midnight',      nav:'#0D1117', yellow:'#58A6FF', green:'#3FB950', greenDk:'#2EA043', paper:'#161B22'},
-  {id:'navy_gold',   name:'🏆 Navy & Gold',   nav:'#0F2557', yellow:'#D4A017', green:'#C5A028', greenDk:'#A07820', paper:'#FEF9E7'},
-  {id:'deep_ocean',  name:'🌊 Deep Ocean',    nav:'#003366', yellow:'#38BDF8', green:'#00CED1', greenDk:'#0099CC', paper:'#E6F3FF'},
-  // BOLD
-  {id:'royal_red',   name:'❤️ Royal Red',     nav:'#7F0000', yellow:'#FFD700', green:'#FF6B6B', greenDk:'#CC0000', paper:'#FFF5F5'},
-  {id:'forest',      name:'🌲 Forest',        nav:'#1A3C1A', yellow:'#F0C040', green:'#4CAF50', greenDk:'#388E3C', paper:'#F1F8E9'},
+  // KEEP
+  {id:'original',    name:'💛 Original',       nav:'#14215C', yellow:'#F5D311', green:'#4CAF7D', greenDk:'#2E8B57', paper:'#FFFDF5'},
+  {id:'mint_light',  name:'🌿 Mint Light',     nav:'#065F46', yellow:'#FDE68A', green:'#6EE7B7', greenDk:'#059669', paper:'#ECFDF5'},
+
+  // PROFESSIONAL NEW
+  {id:'charcoal',    name:'🖤 Charcoal Elite', nav:'#1C1C1E', yellow:'#FF9F0A', green:'#30D158', greenDk:'#248A3D', paper:'#F2F2F7'},
+  {id:'slate_pro',   name:'🩵 Slate Pro',      nav:'#1E293B', yellow:'#38BDF8', green:'#34D399', greenDk:'#059669', paper:'#F8FAFC'},
+  {id:'indigo',      name:'💙 Indigo',         nav:'#312E81', yellow:'#A5B4FC', green:'#6EE7B7', greenDk:'#059669', paper:'#EEF2FF'},
+  {id:'executive',   name:'🏢 Executive',      nav:'#1A1A2E', yellow:'#E94560', green:'#16213E', greenDk:'#0F3460', paper:'#F5F5F5'},
+  {id:'nordic',      name:'❄️ Nordic',         nav:'#2E4057', yellow:'#F2CC8F', green:'#81B29A', greenDk:'#3D7054', paper:'#FAFAF9'},
+  {id:'amber',       name:'🟡 Amber Gold',     nav:'#1C1917', yellow:'#F59E0B', green:'#D97706', greenDk:'#B45309', paper:'#FFFBEB'},
+  {id:'teal_dark',   name:'🌊 Teal Dark',      nav:'#134E4A', yellow:'#FBBF24', green:'#2DD4BF', greenDk:'#0D9488', paper:'#F0FDFA'},
+  {id:'rose_pro',    name:'🌹 Rose Pro',       nav:'#4C0519', yellow:'#FDA4AF', green:'#FB7185', greenDk:'#E11D48', paper:'#FFF1F2'},
 ];
 
 let selectedTheme = localStorage.getItem('adminSelectedTheme') || 'original';
