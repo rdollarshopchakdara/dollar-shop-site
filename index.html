@@ -28,7 +28,7 @@
   .logo{display:flex;align-items:center;gap:13px;flex:1;}
   .logo-img{width:60px;height:60px;border-radius:50%;flex-shrink:0;border:2px solid var(--yellow);object-fit:cover;}
   .logo-text{flex:1;text-align:center;}
-  .logo-text b{font-size:34px;letter-spacing:1px;display:block;line-height:1.1;color:#fff;font-weight:900;text-transform:uppercase;}
+  .logo-text b{font-size:34px;letter-spacing:1px;display:block;line-height:1.1;color:var(--nav-text,#fff);font-weight:900;text-transform:uppercase;}
   .logo-text b span{color:inherit;}
   .logo-text small{font-size:15px;color:var(--yellow);letter-spacing:2px;font-weight:700;display:block;margin-top:3px;}
   .cart-btn{position:relative;background:var(--yellow);color:var(--navy);border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:7px;}
@@ -41,7 +41,7 @@
   .search-bar input{width:100%;padding:11px 16px;border:none;border-radius:12px;font-size:14px;background:rgba(255,255,255,.95);}
   .search-bar input:focus{outline:2px solid var(--yellow);}
   .header-nav{display:flex;align-items:center;justify-content:center;gap:4px;padding:0 16px 8px;max-width:1100px;margin:0 auto;}
-  .hnav-item{color:rgba(255,255,255,.75);font-size:13px;font-weight:600;padding:7px 18px;border-radius:20px;cursor:pointer;transition:all .15s;}
+  .hnav-item{color:var(--nav-text-muted,rgba(255,255,255,.75));font-size:13px;font-weight:600;padding:7px 18px;border-radius:20px;cursor:pointer;transition:all .15s;}
   .hnav-item:hover{background:rgba(255,255,255,.1);color:#fff;}
   .hnav-item.active{background:var(--yellow);color:var(--navy);}
 
@@ -896,6 +896,14 @@
         root.style.setProperty('--green', t.green);
         root.style.setProperty('--green-dk', t.greenDk);
         root.style.setProperty('--paper', t.paper);
+        // For light nav themes, adjust header text color
+        if(t.lightNav){
+          root.style.setProperty('--nav-text', '#1F2937');
+          root.style.setProperty('--nav-text-muted', '#6B7280');
+        } else {
+          root.style.setProperty('--nav-text', '#ffffff');
+          root.style.setProperty('--nav-text-muted', 'rgba(255,255,255,0.75)');
+        }
       }
     } catch(e){}
   }
