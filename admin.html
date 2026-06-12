@@ -325,7 +325,8 @@
           <div id="themeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px;"></div>
           <!-- Custom Theme -->
           <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:4px;">
-            <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;">🎨 Custom Theme</div>
+            <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">🎨 Customize Selected Theme</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Koi bhi theme select karo — colors neeche aa jayenge. Tweak karo phir "Apply Custom" click karo.</div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px;">
               <div class="field" style="margin:0;">
                 <label>Nav Color</label>
@@ -829,6 +830,18 @@ function selectTheme(id){
   selectedTheme = id;
   document.querySelectorAll('.theme-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('tc-'+id).classList.add('selected');
+  // Populate custom color pickers with selected theme colors
+  const t = THEMES.find(th=>th.id===id);
+  if(t){
+    document.getElementById('cNav').value = t.nav;
+    document.getElementById('cNavTxt').value = t.nav;
+    document.getElementById('cYellow').value = t.yellow;
+    document.getElementById('cYellowTxt').value = t.yellow;
+    document.getElementById('cGreen').value = t.greenDk;
+    document.getElementById('cGreenTxt').value = t.greenDk;
+    document.getElementById('cPaper').value = t.paper;
+    document.getElementById('cPaperTxt').value = t.paper;
+  }
 }
 
 async function applyCustomTheme(){
