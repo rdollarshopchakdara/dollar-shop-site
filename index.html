@@ -441,11 +441,11 @@
           image_url: p.image_url || null,
         }));
       } else {
-        // No products yet — show demo products
-        PRODUCTS = DEMO_PRODUCTS;
+        // No products in database yet — show nothing (real products add karein admin se)
+        PRODUCTS = [];
       }
     } catch(e) {
-      PRODUCTS = DEMO_PRODUCTS;
+      PRODUCTS = [];
     }
     renderChips();
     renderProducts();
@@ -461,50 +461,7 @@
     } catch(e) { console.log('Order save error', e); }
   }
 
-  const DEMO_PRODUCTS = [
-    {id:1, name:'Plastic Storage Box', cat:'Plastic', price:280, emoji:'📦'},
-    {id:2, name:'Plastic Water Bottle', cat:'Plastic', price:280, emoji:'🍶'},
-    {id:3, name:'Fancy Necklace Set', cat:'Jewellery', price:280, emoji:'📿'},
-    {id:4, name:'Bangles Pair', cat:'Jewellery', price:280, emoji:'💫'},
-    {id:5, name:'Wall Decoration Piece', cat:'Decoration', price:280, emoji:'🖼️'},
-    {id:6, name:'Artificial Flowers', cat:'Decoration', price:280, emoji:'🌸'},
-    {id:7, name:'Lipstick Set', cat:'Cosmetics', price:280, emoji:'💄'},
-    {id:8, name:'Makeup Brush Kit', cat:'Cosmetics', price:280, emoji:'🖌️'},
-    {id:9, name:'Notebook Pack', cat:'Stationery', price:280, emoji:'📓'},
-    {id:10, name:'Pen Set (10pc)', cat:'Stationery', price:280, emoji:'🖊️'},
-    {id:11, name:'Screwdriver Set', cat:'Hardware', price:280, emoji:'🔧'},
-    {id:12, name:'Tape & Tools', cat:'Hardware', price:280, emoji:'🔨'},
-    {id:13, name:'Birthday Balloons', cat:'Birthday', price:280, emoji:'🎈'},
-    {id:14, name:'Party Hats Pack', cat:'Birthday', price:280, emoji:'🎉'},
-    {id:15, name:'Wedding Garland', cat:'Wedding', price:280, emoji:'💐'},
-    {id:16, name:'Decor Lights', cat:'Wedding', price:280, emoji:'✨'},
-    {id:17, name:'Toy Car', cat:'Toys', price:280, emoji:'🚗'},
-    {id:18, name:'Building Blocks', cat:'Toys', price:280, emoji:'🧱'},
-    {id:19, name:'Kitchen Spoon Set', cat:'Kitchen', price:280, emoji:'🥄'},
-    {id:20, name:'Storage Jars', cat:'Kitchen', price:280, emoji:'🫙'},
-    {id:21, name:'Toilet Brush', cat:'Toilet', price:280, emoji:'🚽'},
-    {id:22, name:'Bathroom Set', cat:'Toilet', price:280, emoji:'🧼'},
-    {id:23, name:'Cleaning Liquid', cat:'Liquids', price:280, emoji:'🧴'},
-    {id:24, name:'Hand Wash', cat:'Liquids', price:280, emoji:'🧽'},
-    {id:25, name:'Wrist Watch', cat:'Watches', price:280, emoji:'⌚'},
-    {id:26, name:'Digital Watch', cat:'Watches', price:280, emoji:'⏱️'},
-    {id:27, name:'Phone Charger', cat:'Mobile & Electronics', price:280, emoji:'🔌'},
-    {id:28, name:'Earphones', cat:'Mobile & Electronics', price:280, emoji:'🎧'},
-    {id:29, name:'Sunglasses', cat:'Glasses', price:280, emoji:'🕶️'},
-    {id:30, name:'Reading Glasses', cat:'Glasses', price:280, emoji:'👓'},
-    {id:31, name:'Kids T-Shirt', cat:'Garments', price:280, emoji:'👕'},
-    {id:32, name:'Socks Pack', cat:'Garments', price:280, emoji:'🧦'},
-    {id:33, name:'Coca Cola', cat:'Cold Drinks', mart:true, variants:[{label:'Small',price:60},{label:'1.5L',price:120}], emoji:'🥤'},
-    {id:34, name:'Sprite', cat:'Cold Drinks', mart:true, variants:[{label:'Small',price:60},{label:'1.5L',price:120}], emoji:'🧊'},
-    {id:35, name:'Lays Chips', cat:'Snacks', mart:true, variants:[{label:'Small',price:30},{label:'Large',price:100}], emoji:'🥔'},
-    {id:36, name:'Biscuits', cat:'Snacks', mart:true, price:50, emoji:'🍪'},
-    {id:37, name:'Cooking Oil 1L', cat:'General', mart:true, price:550, emoji:'🛢️'},
-    {id:38, name:'Sugar 1kg', cat:'General', mart:true, price:140, emoji:'🍚'},
-    {id:39, name:'Almonds (Badam)', cat:'Dry Fruits', mart:true, variants:[{label:'250g',price:200},{label:'125g',price:100},{label:'50g',price:50}], emoji:'🌰'},
-    {id:40, name:'Cashew (Kaju)', cat:'Dry Fruits', mart:true, variants:[{label:'250g',price:400},{label:'125g',price:200}], emoji:'🥜'},
-    {id:41, name:'Vanilla Ice Cream', cat:'Ice Cream', mart:true, variants:[{label:'Cup',price:50},{label:'Family',price:300}], emoji:'🍦'},
-    {id:42, name:'Chocolate Cone', cat:'Ice Cream', mart:true, price:80, emoji:'🍨'},
-  ];
+  const DEMO_PRODUCTS = []; // demo products removed - real data ab Supabase se aata hai
 
   const CAT_ICONS = {
     'All':'🏠','Plastic':'🧴','Jewellery':'💍','Decoration':'🖼️','Cosmetics':'💄',
