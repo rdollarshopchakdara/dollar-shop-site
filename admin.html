@@ -664,6 +664,18 @@ async function demoSave(){
     imageUrl = await uploadPhoto(photoFile, name);
   }
 
+  // Upload extra photos (optional) and build array
+  const extraImages = [];
+  for(let i=1;i<=3;i++){
+    const ef = document.getElementById('extraPhoto'+i).files[0];
+    if(ef){
+      const btn = document.querySelector('#addModal .btn-save');
+      btn.textContent = '⏳ Uploading...';
+      const url = await uploadPhoto(ef, name+'-extra'+i);
+      if(url) extraImages.push(url);
+    }
+  }
+
   const result = await sb('/rest/v1/products', {
     method:'POST',
     prefer:'return=representation',
@@ -674,7 +686,7 @@ async function demoSave(){
         is_active:true,
         image_url:imageUrl,
         description: document.getElementById('prodDesc').value.trim() || null,
-        extra_images: extraImages,
+        extra_images: extraImages.length ? extraImages : null,
         video_url: document.getElementById('prodVideo').value.trim() || null
       })
   });
