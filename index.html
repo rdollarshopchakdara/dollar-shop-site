@@ -164,8 +164,10 @@
   .pd-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
   .pd-head h3{font-size:17px;font-weight:800;color:var(--navy);}
   .pd-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted);}
-  .pd-main-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:80px;}
-  .pd-main-img img{width:100%;height:100%;object-fit:cover;}
+  .pd-main-img{width:100%;max-height:70vh;background:#0e1430;display:flex;align-items:center;justify-content:center;font-size:80px;overflow:hidden;}
+  .pd-main-img img{max-width:100%;max-height:70vh;width:auto;height:auto;object-fit:contain;cursor:zoom-in;transition:transform .25s ease;transform-origin:center center;}
+  .pd-main-img img.zoomed{cursor:zoom-out;transform:scale(2.2);}
+  .pd-zoom-hint{font-size:11px;color:var(--muted);text-align:center;padding:6px 0 0;}
   .pd-thumbs{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;}
   .pd-thumb{width:64px;height:64px;border-radius:8px;border:2px solid var(--line);object-fit:cover;cursor:pointer;flex-shrink:0;}
   .pd-thumb.active{border-color:var(--navy);}
@@ -366,6 +368,7 @@
       <button class="pd-close" onclick="closePDBtn()">✕</button>
     </div>
     <div class="pd-main-img" id="pdMainImg"></div>
+    <div class="pd-zoom-hint" id="pdZoomHint"></div>
     <div class="pd-thumbs" id="pdThumbs"></div>
     <div class="pd-body">
       <div id="pdCat" class="pd-cat"></div>
@@ -682,10 +685,13 @@
 
     // Main image
     const mainImg = document.getElementById('pdMainImg');
+    const zoomHint = document.getElementById('pdZoomHint');
     if(p.image_url){
-      mainImg.innerHTML = `<img src="${p.image_url}" alt="${p.name}">`;
+      mainImg.innerHTML = `<img src="${p.image_url}" alt="${p.name}" onclick="pdToggleZoom(this)">`;
+      if(zoomHint) zoomHint.textContent = '🔍 Image par click karein zoom in / out ke liye';
     } else {
       mainImg.innerHTML = `<span style="font-size:80px;">${p.emoji||'📦'}</span>`;
+      if(zoomHint) zoomHint.textContent = '';
     }
 
     // Thumbnails
@@ -719,9 +725,14 @@
   }
 
   function pdSetMainImg(url, el){
-    document.getElementById('pdMainImg').innerHTML = `<img src="${url}" alt="product">`;
+    document.getElementById('pdMainImg').innerHTML = `<img src="${url}" alt="product" onclick="pdToggleZoom(this)">`;
     document.querySelectorAll('.pd-thumb').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');
+  }
+
+  // Click image to zoom in / out (full image, no cropping)
+  function pdToggleZoom(img){
+    img.classList.toggle('zoomed');
   }
 
   function closePD(e){ if(e.target.id==='pdOverlay') closePDBtn(); }

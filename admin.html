@@ -383,7 +383,7 @@
 <div class="modal-overlay" id="addModal">
   <div class="modal-box">
     <div class="modal-hd">
-      <h3>➕ Add New Product</h3>
+      <h3 id="modalTitle">➕ Add New Product</h3>
       <button class="modal-close" onclick="closeAddModal()">✕</button>
     </div>
     <div class="modal-body">
@@ -394,7 +394,7 @@
         <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
       </div>
       <div style="height:14px;"></div>
-      <div class="field"><label>Product Name</label><input type="text" placeholder="e.g. Plastic Storage Box"></div>
+      <div class="field"><label>Product Name</label><input type="text" id="prodName" placeholder="e.g. Plastic Storage Box"></div>
       <div class="field-row">
         <div class="field"><label>Category</label>
           <select id="productCategory" onchange="checkCustomCat(this)">
@@ -410,11 +410,11 @@
           </select>
           <input type="text" id="customCatInput" placeholder="Nai category naam likho..." style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);">
         </div>
-        <div class="field"><label>Price (Rs)</label><input type="number" placeholder="280"></div>
+        <div class="field"><label>Price (Rs)</label><input type="number" id="prodPrice" placeholder="280"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Stock Qty</label><input type="number" placeholder="50"></div>
-        <div class="field"><label>Low Stock Alert</label><input type="number" placeholder="10"></div>
+        <div class="field"><label>Stock Qty</label><input type="number" id="prodStock" placeholder="50"></div>
+        <div class="field"><label>Low Stock Alert</label><input type="number" id="prodLowAlert" placeholder="10"></div>
       </div>
       <div class="field"><label>Description</label><textarea id="prodDesc" rows="3" placeholder="Product ki detail likho — size, material, color, etc..."></textarea></div>
       <div class="field">
@@ -430,7 +430,7 @@
     </div>
     <div class="modal-ft">
       <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
-      <button class="btn-save" onclick="demoSave()">Save Product</button>
+      <button class="btn-save" id="saveBtn" onclick="saveProduct()">Save Product</button>
     </div>
   </div>
 </div>
@@ -513,7 +513,7 @@ async function renderProducts(){
         <td><span class="badge ${lowStock?'pending':'done'}">${lowStock?'Low Stock':'In Stock'}</span></td>
         <td><div class="action-btns">
           <button class="btn-trend ${p.is_trending?'on':''}" onclick="toggleTrending('${p.id}',${p.is_trending})" title="Trending toggle">${p.is_trending?'🔥 Trending':'⭐ Set Trending'}</button>
-          <button class="btn-edit" onclick="openEditModal('${p.id}','${p.name.replace(/'/g,"\'")}','${p.category}',${p.price},${p.stock},'${p.emoji||'📦'}')">✏️ Edit</button>
+          <button class="btn-edit" onclick="openEditModal('${p.id}')">✏️ Edit</button>
           <button class="btn-del" onclick="deleteProduct('${p.id}')">🗑️</button>
         </div></td>
       </tr>`;
@@ -538,16 +538,52 @@ async function deleteProduct(id){
   loadDashboard();
 }
 
-function openEditModal(id, name, cat, price, stock, emoji){
-  // Simple inline edit for now
-  const newPrice = prompt('New price:', price);
-  const newStock = prompt('New stock:', stock);
-  if(newPrice === null) return;
-  sb('/rest/v1/products?id=eq.'+id, {
-    method: 'PATCH',
-    prefer: 'return=minimal',
-    body: JSON.stringify({price: parseFloat(newPrice), stock: parseInt(newStock)})
-  }).then(()=>{ renderProducts(); loadDashboard(); });
+let editingId = null; // null = add mode, else editing this product id
+
+async function openEditModal(id){
+  // Fetch fresh product data
+  const data = await sb('/rest/v1/products?id=eq.'+id);
+  if(!data || !data[0]){ alert('Product nahi mila'); return; }
+  const p = data[0];
+  editingId = id;
+
+  // Fill form fields
+  document.getElementById('modalTitle').textContent = '✏️ Edit Product';
+  document.getElementById('saveBtn').textContent = 'Update Product';
+  document.getElementById('prodName').value = p.name || '';
+  document.getElementById('prodPrice').value = p.price ?? '';
+  document.getElementById('prodStock').value = p.stock ?? '';
+  document.getElementById('prodLowAlert').value = p.low_stock_alert ?? '';
+  document.getElementById('prodDesc').value = p.description || '';
+  document.getElementById('prodVideo').value = p.video_url || '';
+
+  // Category — agar list mein hai to select karo, warna custom
+  const catSel = document.getElementById('productCategory');
+  const customInput = document.getElementById('customCatInput');
+  const options = Array.from(catSel.options).map(o=>o.value);
+  if(p.category && options.includes(p.category)){
+    catSel.value = p.category;
+    customInput.style.display = 'none';
+  } else if(p.category){
+    catSel.value = '__custom__';
+    customInput.style.display = 'block';
+    customInput.value = p.category;
+  }
+
+  // Existing photo preview
+  const area = document.getElementById('photoUploadArea');
+  const label = document.getElementById('photoLabel');
+  if(p.image_url){
+    area.style.backgroundImage = `url(${p.image_url})`;
+    area.style.backgroundSize = 'cover';
+    area.style.backgroundPosition = 'center';
+    label.textContent = 'Photo mojood hai — badalna ho to nayi upload karein';
+  } else {
+    area.style.backgroundImage = '';
+    label.textContent = 'Click to upload product photo';
+  }
+
+  document.getElementById('addModal').classList.add('show');
 }
 
 async function renderOrders(){
@@ -592,11 +628,30 @@ async function updateOrderStatus(id, status){
   });
 }
 
-function openAddModal(){ document.getElementById('addModal').classList.add('show'); }
+function openAddModal(){
+  editingId = null;
+  resetProductForm();
+  document.getElementById('modalTitle').textContent = '➕ Add New Product';
+  document.getElementById('saveBtn').textContent = 'Save Product';
+  document.getElementById('addModal').classList.add('show');
+}
+function resetProductForm(){
+  ['prodName','prodPrice','prodStock','prodLowAlert','prodDesc','prodVideo','customCatInput'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('productCategory').value = 'Plastic';
+  document.getElementById('customCatInput').style.display = 'none';
+  document.getElementById('photoInput').value = '';
+  const area = document.getElementById('photoUploadArea');
+  area.style.backgroundImage = '';
+  document.getElementById('photoLabel').textContent = 'Click to upload product photo';
+  for(let i=1;i<=3;i++){ const e=document.getElementById('extraPhoto'+i); if(e) e.value=''; }
+}
 function closeAddModal(){ 
   document.getElementById('addModal').classList.remove('show'); 
   document.getElementById('customCatInput').style.display='none';
   document.getElementById('productCategory').value='Plastic';
+  editingId = null;
 }
 function checkCustomCat(sel){
   const customInput = document.getElementById('customCatInput');
@@ -640,66 +695,78 @@ async function uploadPhoto(file, productName){
   return null;
 }
 
-async function demoSave(){
-  const inputs = document.querySelectorAll('#addModal input[type=text], #addModal input[type=number]');
-  const name = inputs[0].value.trim();
+async function saveProduct(){
+  const name = document.getElementById('prodName').value.trim();
   const catSel = document.getElementById('productCategory');
   let cat = catSel.value;
   if(cat === '__custom__'){
     cat = document.getElementById('customCatInput').value.trim();
     if(!cat){ alert('Nai category ka naam likho!'); return; }
   }
-  const numInputs = document.querySelectorAll('#addModal input[type=number]');
-  const price = parseFloat(numInputs[0].value) || 280;
-  const stock = parseInt(numInputs[1].value) || 0;
-  const lowAlert = parseInt(numInputs[2].value) || 10;
+  const price = parseFloat(document.getElementById('prodPrice').value) || 280;
+  const stock = parseInt(document.getElementById('prodStock').value) || 0;
+  const lowAlert = parseInt(document.getElementById('prodLowAlert').value) || 10;
   if(!name){ alert('Product naam likho!'); return; }
 
-  // Upload photo if selected
-  let imageUrl = null;
+  const btn = document.getElementById('saveBtn');
+
+  // Upload main photo if a new one selected
+  let imageUrl = undefined; // undefined = don't change (edit), null/url = set
   const photoFile = document.getElementById('photoInput').files[0];
   if(photoFile){
-    const btn = document.querySelector('#addModal .btn-save');
     btn.textContent = '⏳ Uploading...';
     imageUrl = await uploadPhoto(photoFile, name);
   }
 
-  // Upload extra photos (optional) and build array
+  // Upload extra photos (optional)
   const extraImages = [];
   for(let i=1;i<=3;i++){
     const ef = document.getElementById('extraPhoto'+i).files[0];
     if(ef){
-      const btn = document.querySelector('#addModal .btn-save');
       btn.textContent = '⏳ Uploading...';
       const url = await uploadPhoto(ef, name+'-extra'+i);
       if(url) extraImages.push(url);
     }
   }
 
-  const result = await sb('/rest/v1/products', {
-    method:'POST',
-    prefer:'return=representation',
-    body: JSON.stringify({
-        name, category:cat, price, stock,
-        low_stock_alert:lowAlert,
-        emoji:'📦',
-        is_active:true,
-        image_url:imageUrl,
-        description: document.getElementById('prodDesc').value.trim() || null,
-        extra_images: extraImages.length ? extraImages : null,
-        video_url: document.getElementById('prodVideo').value.trim() || null
-      })
-  });
-  alert('✅ Product save ho gaya!');
-  document.querySelector('#addModal .btn-save').textContent = 'Save Product';
-  // Reset form
-  document.getElementById('photoInput').value = '';
-  document.getElementById('photoUploadArea').style.backgroundImage = '';
-  document.getElementById('photoLabel').textContent = 'Click to upload product photo';
-  document.getElementById('prodDesc').value = '';
-  document.getElementById('prodVideo').value = '';
-  for(let i=1;i<=3;i++) document.getElementById('extraPhoto'+i).value = '';
+  // Build the data object
+  const body = {
+    name, category:cat, price, stock,
+    low_stock_alert:lowAlert,
+    description: document.getElementById('prodDesc').value.trim() || null,
+    video_url: document.getElementById('prodVideo').value.trim() || null
+  };
+  // Only set image fields if new images were uploaded (warna purani photo rehne do)
+  if(imageUrl !== undefined) body.image_url = imageUrl;
+  if(extraImages.length) body.extra_images = extraImages;
+
+  try {
+    if(editingId){
+      // EDIT — update existing product
+      await sb('/rest/v1/products?id=eq.'+editingId, {
+        method:'PATCH', prefer:'return=minimal',
+        body: JSON.stringify(body)
+      });
+      alert('✅ Product update ho gaya!');
+    } else {
+      // ADD — new product
+      body.emoji = '📦';
+      body.is_active = true;
+      if(imageUrl === undefined) body.image_url = null;
+      await sb('/rest/v1/products', {
+        method:'POST', prefer:'return=minimal',
+        body: JSON.stringify(body)
+      });
+      alert('✅ Product save ho gaya!');
+    }
+  } catch(e){
+    alert('❌ Error: save nahi hua. Dobara koshish karein.');
+    btn.textContent = editingId ? 'Update Product' : 'Save Product';
+    return;
+  }
+
   closeAddModal();
+  resetProductForm();
   renderProducts();
   loadDashboard();
 }
