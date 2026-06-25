@@ -757,23 +757,64 @@
   function closeCart(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); }
   function openOrderModal(){ if(cart.length===0) return; document.getElementById('orderModal').classList.add('show'); }
   function closeOrderModal(){ document.getElementById('orderModal').classList.remove('show'); }
+ 
+  
+
   function sendOrder(){
     const name=document.getElementById('custName').value.trim();
     const phone=document.getElementById('custPhone').value.trim();
     const address=document.getElementById('custAddress').value.trim();
     const note=document.getElementById('custNote').value.trim();
     if(!name||!phone||!address){ alert('Naam, phone aur address zaroor bharein.'); return; }
+
     const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
     const items=cart.reduce((s,c)=>s+c.qty,0);
-    let msg=`*NEW ORDER - Dollar Shop & Mart*%0A%0A*Customer:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A`;
-    if(note) msg+=`*Note:* ${note}%0A`;
-    msg+=`%0A*-------- ORDER --------*%0A`;
-    cart.forEach(c=>{msg+=`${c.name} x${c.qty} = Rs ${c.price*c.qty}%0A`;});
-    msg+=`*Total Items:* ${items}%0A*Total:* Rs ${total}%0A*Payment:* Cash on Delivery%0A`;
-    if(items>=4) msg+=`*Delivery:* FREE 🚚 (4+ items)%0A`;
-    saveOrderToDB({customer_name:name,customer_phone:phone,customer_address:address,notes:note,items:cart.map(c=>({name:c.name,price:c.price,qty:c.qty})),subtotal:total,total:total,item_count:items,free_delivery:items>=4,status:'new'});
+    const freeDelivery=items>=4;
+    const orderNum='ORD-'+Date.now().toString().slice(-6);
+    const now=new Date();
+    const dateStr=now.toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'});
+    const timeStr=now.toLocaleTimeString('en-PK',{hour:'2-digit',minute:'2-digit'});
+
+    let msg='';
+    msg+='%F0%9F%A7%BE *ORDER RECEIPT*%0A';
+    msg+='*R. Dollar Shop %26 Mart*%0A';
+    msg+='%F0%9F%93%8D Chakdara, Pakistan%0A%0A';
+    msg+='%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%0A';
+    msg+=`*Order %23 ${orderNum}*%0A`;
+    msg+=`%F0%9F%93%85 ${dateStr}  ${timeStr}%0A`;
+    msg+='%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%0A%0A';
+
+    msg+='%F0%9F%91%A4 *CUSTOMER*%0A';
+    msg+=`Name: *${name}*%0A`;
+    msg+=`Phone: ${phone}%0A`;
+    msg+=`Address: ${address}%0A`;
+    if(note) msg+=`Note: ${note}%0A`;
+    msg+='%0A%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%0A';
+    msg+='%F0%9F%9B%92 *ORDER ITEMS*%0A';
+    msg+='%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%0A%0A';
+
+    cart.forEach((c,i)=>{
+        msg+=`${i+1}. *${c.name}*%0A`;
+        msg+=`   ${c.qty} x Rs ${c.price} %3D *Rs ${c.price*c.qty}*%0A%0A`;
+    });
+
+    msg+='%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%0A';
+    msg+=`%F0%9F%93%A6 Total Items: ${items}%0A`;
+    msg+=`%F0%9F%92%B0 *TOTAL: Rs ${total.toLocaleString()}*%0A`;
+    msg+=`%F0%9F%9A%9A Delivery: ${freeDelivery?'FREE %E2%9C%85 (4+ items)':'Will be confirmed'}%0A`;
+    msg+='%F0%9F%92%B3 Payment: Cash on Delivery%0A';
+    msg+='%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%E2%94%81%0A%0A';
+    msg+='_%E2%9A%A0%EF%B8%8F Please confirm this order_%0A';
+    msg+='%F0%9F%93%9E 0345-9522155';
+
+    saveOrderToDB({customer_name:name,customer_phone:phone,customer_address:address,notes:note,
+        items:cart.map(c=>({name:c.name,price:c.price,qty:c.qty})),
+        subtotal:total,total:total,item_count:items,free_delivery:freeDelivery,status:'new'});
     window.open(`https://wa.me/${SHOP_WHATSAPP}?text=${msg}`,'_blank');
-  }
+}
+
+
+  
   // ===== MULTILINGUAL =====
   const TRANSLATIONS = {
     en: {
