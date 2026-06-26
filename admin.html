@@ -135,6 +135,17 @@
   .order-items{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
   .status-select{border:1.5px solid var(--line);border-radius:7px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer;background:var(--paper);}
   .wa-btn{background:#25D366;color:#fff;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
+  .order-tab{background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:8px;transition:all .15s;}
+  .order-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .order-tab.delivered.active{background:#166534;border-color:#166534;}
+  .order-tab.cancelled.active{background:#991B1B;border-color:#991B1B;}
+  .order-tab-count{background:rgba(255,255,255,.25);border-radius:20px;padding:1px 8px;font-size:12px;min-width:22px;text-align:center;}
+  .order-tab:not(.active) .order-tab-count{background:var(--line);color:var(--ink);}
+  .btn-deliver{background:#166534;color:#fff;border:none;border-radius:7px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .btn-cancel-order{background:#991B1B;color:#fff;border:none;border-radius:7px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .btn-deliver:hover{background:#14532D;}
+  .btn-cancel-order:hover{background:#7F1D1D;}
+  .order-action-btns{display:flex;flex-direction:column;gap:5px;min-width:100px;}
   .settings-card{background:var(--cloud);border-radius:14px;border:1.5px solid var(--line);padding:22px;margin-bottom:16px;max-width:560px;}
   .settings-card h3{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--line);}
   .theme-card{border-radius:12px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative;}
@@ -257,13 +268,57 @@
       <div class="page" id="page-orders">
         <div class="page-head">
           <h2>🛒 Orders</h2>
-          <select class="filter-select" onchange="filterOrders(this.value)"><option>All Orders</option><option>new</option><option>pending</option><option>done</option><option>cancelled</option></select>
+          <div style="font-size:13px;color:var(--muted);" id="ordersLastRefresh"></div>
         </div>
-        <div class="orders-table">
-          <table>
-            <thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="ordersTableBody"></tbody>
-          </table>
+
+        <!-- 3 Tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="order-tab active" id="tab-waiting" onclick="setOrderTab('waiting')">
+            ⏳ Waiting <span class="order-tab-count" id="count-waiting">0</span>
+          </button>
+          <button class="order-tab delivered" id="tab-delivered" onclick="setOrderTab('delivered')">
+            ✅ Delivered <span class="order-tab-count" id="count-delivered">0</span>
+          </button>
+          <button class="order-tab cancelled" id="tab-cancelled" onclick="setOrderTab('cancelled')">
+            ❌ Cancelled <span class="order-tab-count" id="count-cancelled">0</span>
+          </button>
+          <button onclick="renderOrders()" style="margin-left:auto;background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--navy);">🔄 Refresh</button>
+        </div>
+
+        <!-- Waiting Orders -->
+        <div id="section-waiting">
+          <div class="orders-table">
+            <table>
+              <thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead>
+              <tbody id="ordersWaiting"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Delivered Orders -->
+        <div id="section-delivered" style="display:none;">
+          <div style="background:#DCFCE7;border:1px solid #86EFAC;border-radius:10px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#166534;font-weight:600;">
+            ✅ Yeh sab orders successfully deliver ho gayi hain
+          </div>
+          <div class="orders-table">
+            <table>
+              <thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="ordersDelivered"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cancelled Orders -->
+        <div id="section-cancelled" style="display:none;">
+          <div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#991B1B;font-weight:600;">
+            ❌ Yeh orders cancel ho gayi hain
+          </div>
+          <div class="orders-table">
+            <table>
+              <thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="ordersCancelled"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -577,48 +632,128 @@ async function openEditModal(id){
 }
 
 // ===== ORDERS =====
+let activeOrderTab = 'waiting';
+
+function setOrderTab(tab){
+  activeOrderTab = tab;
+  ['waiting','delivered','cancelled'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('section-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+}
+
 async function renderOrders(){
-  const tb = document.getElementById('ordersTableBody');
-  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">⏳ Loading...</td></tr>';
+  // Show loading in all tabs
+  ['ordersWaiting','ordersDelivered','ordersCancelled'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">⏳ Loading...</td></tr>';
+  });
   try {
     const data = await sb('/rest/v1/orders?order=created_at.desc');
     allOrders = data||[];
-    renderOrderRows(allOrders);
+
+    const waiting   = allOrders.filter(o => o.status === 'new' || o.status === 'pending' || !o.status);
+    const delivered = allOrders.filter(o => o.status === 'done');
+    const cancelled = allOrders.filter(o => o.status === 'cancelled');
+
+    // Update counts
+    document.getElementById('count-waiting').textContent   = waiting.length;
+    document.getElementById('count-delivered').textContent = delivered.length;
+    document.getElementById('count-cancelled').textContent = cancelled.length;
+
+    // Update refresh time
+    const el = document.getElementById('ordersLastRefresh');
+    if(el) el.textContent = 'Last updated: ' + new Date().toLocaleTimeString('en-PK');
+
+    renderWaitingOrders(waiting);
+    renderHistoryOrders(delivered, 'ordersDelivered', 'delivered');
+    renderHistoryOrders(cancelled, 'ordersCancelled', 'cancelled');
+
   } catch(e) {
-    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--red);">Error loading orders</td></tr>';
+    document.getElementById('ordersWaiting').innerHTML =
+      '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--red);">Error loading orders</td></tr>';
   }
 }
 
-function filterOrders(val){
-  if(!val || val==='All Orders') renderOrderRows(allOrders);
-  else renderOrderRows(allOrders.filter(o=>o.status===val));
-}
-
-function renderOrderRows(list){
-  const tb = document.getElementById('ordersTableBody');
-  if(!list||list.length===0){ tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">Koi order nahi mila</td></tr>'; return; }
+function renderWaitingOrders(list){
+  const tb = document.getElementById('ordersWaiting');
+  if(!list || list.length === 0){
+    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);"><div style="font-size:36px;margin-bottom:8px;">✅</div>Koi pending order nahi!</td></tr>';
+    return;
+  }
   tb.innerHTML = list.map((o,i) => {
-    const itemsText = Array.isArray(o.items)?o.items.map(it=>it.name+' x'+it.qty).join(', '):JSON.stringify(o.items);
-    const timeAgo = new Date(o.created_at).toLocaleString('en-PK');
-    const colors={new:'#1E3A8A',pending:'#92400E',done:'#166534',cancelled:'#991B1B'};
+    const itemsText = Array.isArray(o.items) ? o.items.map(it=>it.name+' x'+it.qty).join(', ') : '';
+    const timeStr = new Date(o.created_at).toLocaleString('en-PK');
     return `<tr>
-      <td style="font-weight:800;color:var(--navy);">#${o.order_number||i+1}</td>
-      <td><div style="font-weight:700;">${o.customer_name}</div><div style="font-size:12px;color:var(--muted);">${o.customer_phone}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">⏱ ${timeAgo}</div></td>
-      <td><div class="order-items">${itemsText}</div>${o.free_delivery?'<span style="font-size:11px;color:var(--green-dk);font-weight:700;">🚚 Free Delivery</span>':''}</td>
-      <td style="font-weight:800;color:var(--green-dk);">Rs ${o.total}</td>
-      <td><select class="status-select" style="color:${colors[o.status]||'#166534'}" onchange="updateOrderStatus('${o.id}',this.value)">
-        <option ${o.status==='new'?'selected':''} value="new">New</option>
-        <option ${o.status==='pending'?'selected':''} value="pending">Pending</option>
-        <option ${o.status==='done'?'selected':''} value="done">Done</option>
-        <option ${o.status==='cancelled'?'selected':''} value="cancelled">Cancelled</option>
-      </select></td>
-      <td><button class="wa-btn" onclick="window.open('https://wa.me/92'+('${o.customer_phone}'.replace(/^0/,'').replace(/-/g,'')))">💬 WhatsApp</button></td>
+      <td style="font-weight:800;color:var(--navy);white-space:nowrap;">#${o.order_number||i+1}</td>
+      <td>
+        <div style="font-weight:700;">${o.customer_name}</div>
+        <div style="font-size:12px;color:var(--muted);">${o.customer_phone}</div>
+        <div style="font-size:11px;color:var(--muted);">${o.customer_address||''}</div>
+        <div style="font-size:11px;color:var(--muted);">⏱ ${timeStr}</div>
+      </td>
+      <td>
+        <div class="order-items">${itemsText}</div>
+        ${o.free_delivery?'<span style="font-size:11px;color:var(--green-dk);font-weight:700;">🚚 Free Delivery</span>':''}
+        ${o.notes?`<div style="font-size:11px;color:#92400E;margin-top:3px;">📝 ${o.notes}</div>`:''}
+      </td>
+      <td style="font-weight:800;color:var(--green-dk);white-space:nowrap;">Rs ${o.total}</td>
+      <td>
+        <div class="order-action-btns">
+          <button class="btn-deliver" onclick="markOrderStatus('${o.id}','done')">✅ Delivered</button>
+          <button class="btn-cancel-order" onclick="markOrderStatus('${o.id}','cancelled')">❌ Cancel</button>
+          <button class="wa-btn" onclick="window.open('https://wa.me/92'+('${o.customer_phone}'.replace(/^0/,'').replace(/-/g,'')))">💬 WhatsApp</button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 }
 
+function renderHistoryOrders(list, tbId, type){
+  const tb = document.getElementById(tbId);
+  const emoji = type === 'delivered' ? '📦' : '🗑️';
+  const emptyMsg = type === 'delivered' ? 'Abhi tak koi delivered order nahi' : 'Koi cancelled order nahi';
+  if(!list || list.length === 0){
+    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);"><div style="font-size:36px;margin-bottom:8px;">${emoji}</div>${emptyMsg}</td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map((o,i) => {
+    const itemsText = Array.isArray(o.items) ? o.items.map(it=>it.name+' x'+it.qty).join(', ') : '';
+    const timeStr = new Date(o.created_at).toLocaleString('en-PK');
+    const rowBg = type === 'delivered' ? 'background:#F0FDF4;' : 'background:#FFF5F5;';
+    return `<tr style="${rowBg}">
+      <td style="font-weight:800;color:var(--navy);white-space:nowrap;">#${o.order_number||i+1}</td>
+      <td>
+        <div style="font-weight:700;">${o.customer_name}</div>
+        <div style="font-size:12px;color:var(--muted);">${o.customer_phone}</div>
+      </td>
+      <td><div class="order-items">${itemsText}</div></td>
+      <td style="font-weight:800;color:var(--green-dk);white-space:nowrap;">Rs ${o.total}</td>
+      <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${timeStr}</td>
+      <td>
+        <button class="wa-btn" onclick="window.open('https://wa.me/92'+('${o.customer_phone}'.replace(/^0/,'').replace(/-/g,'')))">💬 WhatsApp</button>
+        ${type==='delivered'?`<button onclick="markOrderStatus('${o.id}','cancelled')" style="margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:#991B1B;display:block;">↩ Undo</button>`:''}
+        ${type==='cancelled'?`<button onclick="markOrderStatus('${o.id}','new')" style="margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--navy);display:block;">↩ Restore</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function markOrderStatus(id, status){
+  try {
+    await sb('/rest/v1/orders?id=eq.'+id, {method:'PATCH', prefer:'return=minimal', body:JSON.stringify({status})});
+    await renderOrders();
+    // Switch to relevant tab after action
+    if(status === 'done') setOrderTab('delivered');
+    else if(status === 'cancelled') setOrderTab('cancelled');
+    else setOrderTab('waiting');
+  } catch(e) {
+    alert('Error: status update nahi hua');
+  }
+}
+
 async function updateOrderStatus(id, status){
-  await sb('/rest/v1/orders?id=eq.'+id, {method:'PATCH', prefer:'return=minimal', body:JSON.stringify({status})});
+  await markOrderStatus(id, status);
 }
 
 function openAddModal(){
