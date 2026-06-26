@@ -741,14 +741,25 @@ function renderHistoryOrders(list, tbId, type){
 
 async function markOrderStatus(id, status){
   try {
-    await sb('/rest/v1/orders?id=eq.'+id, {method:'PATCH', prefer:'return=minimal', body:JSON.stringify({status})});
+    // return=representation taake pata chale kitni rows update huin
+    const result = await sb(
+      '/rest/v1/orders?id=eq.'+id,
+      { method:'PATCH',
+        prefer:'return=representation',
+        body: JSON.stringify({status}) }
+    );
+    // Agar empty array aaya matlab update hua hi nahi (RLS block)
+    if(Array.isArray(result) && result.length === 0){
+      alert('❌ Status update nahi hua!\n\nSupabase SQL Editor mein yeh chalao:\n\nCREATE POLICY "allow_order_update"\nON orders FOR UPDATE TO anon\nUSING (true) WITH CHECK (true);');
+      return;
+    }
     await renderOrders();
-    // Switch to relevant tab after action
     if(status === 'done') setOrderTab('delivered');
     else if(status === 'cancelled') setOrderTab('cancelled');
     else setOrderTab('waiting');
   } catch(e) {
-    alert('Error: status update nahi hua');
+    console.error('markOrderStatus error:', e);
+    alert('❌ Error: ' + e.message);
   }
 }
 
