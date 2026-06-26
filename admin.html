@@ -395,7 +395,15 @@ async function sb(path, options={}) {
   if(res.status === 204 || res.status === 201) return {};
   const text = await res.text();
   if(!text || text.trim() === '') return {};
-  try { return JSON.parse(text); } catch(e) { return {}; }
+  let json;
+  try { json = JSON.parse(text); } catch(e) { json = {message: text}; }
+  // Agar HTTP error ho (4xx/5xx) to throw karo taake saveProduct ka catch block chale
+  if(!res.ok){
+    const errMsg = json?.message || json?.error || text;
+    console.error('Supabase error:', res.status, errMsg);
+    throw new Error(`DB Error (${res.status}): ${errMsg}`);
+  }
+  return json;
 }
 
 let allAdminProducts = [];
@@ -702,7 +710,12 @@ async function saveProduct(){
       await sb('/rest/v1/products',{method:'POST',prefer:'return=minimal',body:JSON.stringify(body)});
       alert('✅ Product save ho gaya!');
     }
-  } catch(e){alert('❌ Error: save nahi hua.');btn.textContent=editingId?'Update Product':'Save Product';return;}
+  } catch(e){
+    console.error('Save error:', e);
+    alert('❌ Error: save nahi hua.\n\n' + e.message + '\n\nAgar "categories does not exist" likha ho to Supabase mein yeh SQL chalao:\nALTER TABLE products ADD COLUMN IF NOT EXISTS categories jsonb DEFAULT \'[]\';');
+    btn.textContent=editingId?'Update Product':'Save Product';
+    return;
+  }
   closeAddModal(); resetProductForm(); renderProducts(); loadDashboard();
 }
 
