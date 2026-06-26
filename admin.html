@@ -111,6 +111,10 @@
   .modal-hd h3{font-size:17px;font-weight:800;color:var(--navy);}
   .modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);}
   .modal-body{padding:20px 22px;}
+  .cat-cb-label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;cursor:pointer;padding:6px 8px;border-radius:7px;border:1.5px solid var(--line);background:#fff;transition:all .12s;color:var(--ink);}
+  .cat-cb-label:hover{border-color:var(--navy);background:var(--paper);}
+  .cat-cb-label input[type=checkbox]:checked~*,.cat-cb-label:has(input:checked){border-color:var(--navy);background:#EEF2FF;color:var(--navy);font-weight:800;}
+  .cat-cb-label input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer;flex-shrink:0;}
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
   .field input,.field select,.field textarea{width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);font-family:inherit;}
@@ -312,24 +316,40 @@
       </div>
       <div style="height:14px;"></div>
       <div class="field"><label>Product Name</label><input type="text" id="prodName" placeholder="e.g. Plastic Storage Box"></div>
-      <div class="field-row">
-        <div class="field"><label>Category</label>
-          <select id="productCategory" onchange="checkCustomCat(this)">
-            <option>Plastic</option><option>Jewellery</option><option>Decoration</option>
-            <option>Cosmetics</option><option>Stationery</option><option>Hardware</option>
-            <option>Birthday</option><option>Wedding</option><option>Toys</option>
-            <option>Kitchen</option><option>Toilet</option><option>Liquids</option>
-            <option>Watches</option><option>Mobile &amp; Electronics</option><option>Glasses</option>
-            <option>Garments</option><option>Cold Drinks</option><option>Snacks</option>
-            <option>General</option><option>Dry Fruits</option><option>Ice Cream</option>
-            <option value="__custom__">➕ New Category (Custom)</option>
-          </select>
-          <input type="text" id="customCatInput" placeholder="Nai category naam likho..." style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);">
+      <div class="field">
+        <label>Categories <span style="font-weight:400;color:var(--muted);">(ek ya zyada select karein)</span></label>
+        <div id="catCheckboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px;padding:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;max-height:230px;overflow-y:auto;">
+          <label class="cat-cb-label"><input type="checkbox" value="Plastic"> 🧴 Plastic</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Jewellery"> 💍 Jewellery</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Decoration"> 🖼️ Decoration</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Cosmetics"> 💄 Cosmetics</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Stationery"> 📓 Stationery</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Hardware"> 🔧 Hardware</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Birthday"> 🎈 Birthday</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Wedding"> 💐 Wedding</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Toys"> 🧸 Toys</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Kitchen"> 🥄 Kitchen</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Toilet"> 🚿 Toilet</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Liquids"> 🧴 Liquids</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Watches"> ⌚ Watches</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Mobile & Electronics"> 📱 Mobile</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Glasses"> 👓 Glasses</label>
+          <label class="cat-cb-label"><input type="checkbox" value="Garments"> 👕 Garments</label>
+          <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="Cold Drinks"> 🥤 Cold Drinks</label>
+          <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="Snacks"> 🍪 Snacks</label>
+          <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="General"> 🛒 General</label>
+          <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="Dry Fruits"> 🥜 Dry Fruits</label>
+          <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="Ice Cream"> 🍦 Ice Cream</label>
+          <label class="cat-cb-label" style="border-color:var(--yellow);"><input type="checkbox" value="__custom__" id="customCatCheck" onchange="checkCustomCat(this)"> ➕ Custom</label>
         </div>
-        <div class="field"><label>Price (Rs)</label><input type="number" id="prodPrice" placeholder="280"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px;">⭐ Pehli selected category badge par dikhegi</div>
+        <input type="text" id="customCatInput" placeholder="Custom category naam likho..." style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);">
       </div>
       <div class="field-row">
+        <div class="field"><label>Price (Rs)</label><input type="number" id="prodPrice" placeholder="280"></div>
         <div class="field"><label>Stock Qty</label><input type="number" id="prodStock" placeholder="50"></div>
+      </div>
+      <div class="field-row">
         <div class="field"><label>Low Stock Alert</label><input type="number" id="prodLowAlert" placeholder="10"></div>
       </div>
       <div class="field"><label>Description</label><textarea id="prodDesc" rows="3" placeholder="Product ki detail likho..."></textarea></div>
@@ -505,11 +525,23 @@ async function openEditModal(id){
   document.getElementById('prodLowAlert').value = p.low_stock_alert??'';
   document.getElementById('prodDesc').value = p.description||'';
   document.getElementById('prodVideo').value = p.video_url||'';
-  const catSel = document.getElementById('productCategory');
-  const customInput = document.getElementById('customCatInput');
-  const options = Array.from(catSel.options).map(o=>o.value);
-  if(p.category && options.includes(p.category)){ catSel.value=p.category; customInput.style.display='none'; }
-  else if(p.category){ catSel.value='__custom__'; customInput.style.display='block'; customInput.value=p.category; }
+
+  // Pre-check categories
+  const productCats = (p.categories && p.categories.length > 0) ? p.categories : (p.category ? [p.category] : []);
+  document.querySelectorAll('#catCheckboxes input[type="checkbox"]').forEach(cb => {
+    cb.checked = productCats.includes(cb.value);
+  });
+  // Handle custom category
+  const allStandardCats = ['Plastic','Jewellery','Decoration','Cosmetics','Stationery','Hardware','Birthday','Wedding','Toys','Kitchen','Toilet','Liquids','Watches','Mobile & Electronics','Glasses','Garments','Cold Drinks','Snacks','General','Dry Fruits','Ice Cream'];
+  const customCats = productCats.filter(c => !allStandardCats.includes(c));
+  if(customCats.length > 0){
+    document.getElementById('customCatCheck').checked = true;
+    document.getElementById('customCatInput').style.display = 'block';
+    document.getElementById('customCatInput').value = customCats[0];
+  } else {
+    document.getElementById('customCatInput').style.display = 'none';
+  }
+
   const area = document.getElementById('photoUploadArea');
   if(p.image_url){
     area.style.backgroundImage=`url(${p.image_url})`;
@@ -573,7 +605,10 @@ function openAddModal(){
 }
 function resetProductForm(){
   ['prodName','prodPrice','prodStock','prodLowAlert','prodDesc','prodVideo','customCatInput'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('productCategory').value='Plastic';
+  // Uncheck all category checkboxes, default = Plastic
+  document.querySelectorAll('#catCheckboxes input[type="checkbox"]').forEach(cb=>cb.checked=false);
+  const plasticCb=document.querySelector('#catCheckboxes input[value="Plastic"]');
+  if(plasticCb) plasticCb.checked=true;
   document.getElementById('customCatInput').style.display='none';
   document.getElementById('photoInput').value='';
   const area=document.getElementById('photoUploadArea');
@@ -584,12 +619,14 @@ function resetProductForm(){
 function closeAddModal(){
   document.getElementById('addModal').classList.remove('show');
   document.getElementById('customCatInput').style.display='none';
+  const customCb=document.getElementById('customCatCheck');
+  if(customCb) customCb.checked=false;
   editingId=null;
 }
-function checkCustomCat(sel){
+function checkCustomCat(cb){
   const ci=document.getElementById('customCatInput');
-  if(sel.value==='__custom__'){ci.style.display='block';ci.focus();}
-  else ci.style.display='none';
+  if(cb.checked){ci.style.display='block';ci.focus();}
+  else{ci.style.display='none';ci.value='';}
 }
 function previewPhoto(input){
   const file=input.files[0]; if(!file) return;
@@ -615,9 +652,22 @@ async function uploadPhoto(file, productName){
 }
 async function saveProduct(){
   const name=document.getElementById('prodName').value.trim();
-  const catSel=document.getElementById('productCategory');
-  let cat=catSel.value;
-  if(cat==='__custom__'){cat=document.getElementById('customCatInput').value.trim();if(!cat){alert('Nai category ka naam likho!');return;}}
+
+  // Read all checked categories
+  const checked = Array.from(document.querySelectorAll('#catCheckboxes input[type="checkbox"]:checked'));
+  let cats = checked.map(cb => cb.value).filter(v => v !== '__custom__');
+
+  // Handle custom category
+  const customCb = document.getElementById('customCatCheck');
+  if(customCb && customCb.checked){
+    const customVal = document.getElementById('customCatInput').value.trim();
+    if(!customVal){ alert('Custom category naam likho!'); return; }
+    cats.push(customVal);
+  }
+
+  if(cats.length === 0){ alert('Kam az kam ek category select karo!'); return; }
+  const primaryCat = cats[0]; // pehli selected = primary category (badge)
+
   const price=parseFloat(document.getElementById('prodPrice').value)||280;
   const stock=parseInt(document.getElementById('prodStock').value)||0;
   const lowAlert=parseInt(document.getElementById('prodLowAlert').value)||10;
@@ -631,7 +681,15 @@ async function saveProduct(){
     const ef=document.getElementById('extraPhoto'+i).files[0];
     if(ef){btn.textContent='⏳ Uploading extra...';const url=await uploadPhoto(ef,name+'-extra'+i);if(url)extraImages.push(url);}
   }
-  const body={name,category:cat,price,stock,low_stock_alert:lowAlert,description:document.getElementById('prodDesc').value.trim()||null,video_url:document.getElementById('prodVideo').value.trim()||null};
+  const body={
+    name,
+    category: primaryCat,        // primary category (backward compatible)
+    categories: cats,             // all categories array (multi-cat support)
+    price, stock,
+    low_stock_alert: lowAlert,
+    description: document.getElementById('prodDesc').value.trim()||null,
+    video_url: document.getElementById('prodVideo').value.trim()||null
+  };
   if(imageUrl!==undefined) body.image_url=imageUrl;
   if(extraImages.length) body.extra_images=extraImages;
   try {
