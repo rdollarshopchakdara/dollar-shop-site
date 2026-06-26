@@ -732,8 +732,11 @@ function renderHistoryOrders(list, tbId, type){
       <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${timeStr}</td>
       <td>
         <button class="wa-btn" onclick="window.open('https://wa.me/92'+('${o.customer_phone}'.replace(/^0/,'').replace(/-/g,'')))">💬 WhatsApp</button>
-        ${type==='delivered'?`<button onclick="markOrderStatus('${o.id}','cancelled')" style="margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:#991B1B;display:block;">↩ Undo</button>`:''}
-        ${type==='cancelled'?`<button onclick="markOrderStatus('${o.id}','new')" style="margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--navy);display:block;">↩ Restore</button>`:''}
+        ${type==='delivered'?`<button onclick="markOrderStatus('${o.id}','new')" style="margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--navy);display:block;width:100%;">↩ Restore</button>`:''}
+        ${type==='cancelled'?`
+          <button onclick="markOrderStatus('${o.id}','new')" style="margin-top:4px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--navy);display:block;width:100%;">↩ Restore</button>
+          <button onclick="deleteOrder('${o.id}')" style="margin-top:4px;background:#991B1B;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;display:block;width:100%;">🗑️ Delete</button>
+        `:''}
       </td>
     </tr>`;
   }).join('');
@@ -741,14 +744,12 @@ function renderHistoryOrders(list, tbId, type){
 
 async function markOrderStatus(id, status){
   try {
-    // return=representation taake pata chale kitni rows update huin
     const result = await sb(
       '/rest/v1/orders?id=eq.'+id,
       { method:'PATCH',
         prefer:'return=representation',
         body: JSON.stringify({status}) }
     );
-    // Agar empty array aaya matlab update hua hi nahi (RLS block)
     if(Array.isArray(result) && result.length === 0){
       alert('❌ Status update nahi hua!\n\nSupabase SQL Editor mein yeh chalao:\n\nCREATE POLICY "allow_order_update"\nON orders FOR UPDATE TO anon\nUSING (true) WITH CHECK (true);');
       return;
@@ -760,6 +761,17 @@ async function markOrderStatus(id, status){
   } catch(e) {
     console.error('markOrderStatus error:', e);
     alert('❌ Error: ' + e.message);
+  }
+}
+
+async function deleteOrder(id){
+  if(!confirm('Yeh cancelled order permanently delete ho jayega. Pakka?')) return;
+  try {
+    await sb('/rest/v1/orders?id=eq.'+id, {method:'DELETE', prefer:'return=minimal'});
+    await renderOrders();
+    setOrderTab('cancelled');
+  } catch(e) {
+    alert('❌ Delete nahi hua: ' + e.message);
   }
 }
 
