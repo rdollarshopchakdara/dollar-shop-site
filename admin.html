@@ -474,8 +474,18 @@ function filterProducts(){
   const cat = document.getElementById('catFilter')?.value || 'All Categories';
   const stock = document.getElementById('stockFilter')?.value || 'All Stock';
   let list = allAdminProducts.slice();
-  if(search) list = list.filter(p => (p.name||'').toLowerCase().includes(search) || (p.category||'').toLowerCase().includes(search));
-  if(cat !== 'All Categories') list = list.filter(p => p.category === cat);
+
+  if(search) list = list.filter(p => {
+    const allCats = (p.categories && p.categories.length > 0) ? p.categories : [p.category];
+    return (p.name||'').toLowerCase().includes(search) ||
+           allCats.some(c => (c||'').toLowerCase().includes(search));
+  });
+
+  if(cat !== 'All Categories') list = list.filter(p => {
+    const allCats = (p.categories && p.categories.length > 0) ? p.categories : [p.category];
+    return allCats.includes(cat);
+  });
+
   if(stock === 'Low Stock') list = list.filter(p => p.stock <= (p.low_stock_alert||10));
   if(stock === 'In Stock') list = list.filter(p => p.stock > (p.low_stock_alert||10));
   const tb = document.getElementById('prodTableBody');
@@ -490,7 +500,13 @@ function filterProducts(){
     const lowStock = p.stock <= (p.low_stock_alert || 10);
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:10px;"><div class="prod-emoji">${p.image_url?`<img src="${p.image_url}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;">`:p.emoji||'📦'}</div><div><div style="font-weight:700;">${p.name}</div></div></div></td>
-      <td><span class="cat-tag">${p.category}</span></td>
+      <td>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          ${((p.categories && p.categories.length > 0) ? p.categories : [p.category])
+            .map((c,i) => `<span class="cat-tag" style="${i===0?'':'opacity:.75;font-size:10px;padding:2px 7px;'}">${c}</span>`)
+            .join('')}
+        </div>
+      </td>
       <td style="font-weight:700;color:var(--green-dk);">Rs ${p.price}</td>
       <td style="font-weight:600;color:${lowStock?'var(--red)':'inherit'}">${p.stock}</td>
       <td><span class="badge ${lowStock?'pending':'done'}">${lowStock?'Low Stock':'In Stock'}</span></td>
