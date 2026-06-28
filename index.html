@@ -3,17 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Dollar Shop & Mart - Chakdara</title>
-<meta name="google-site-verification" content="wV_CiXZ5bHJRrwWRkeXK29SngASP3pPVnacw-OALemc" />
-<meta name="description" content="R. Dollar Shop & Mart Chakdara — Quality items at Rs 280. Jewellery, Cosmetics, Kitchen, Decoration aur bohat kuch. Cash on delivery Chakdara, Dir Lower.">
-<meta name="keywords" content="dollar shop chakdara, rs 280 shop, R. Dollar shop chakdara, R.Dollar Shop Chakdara, R. Dollar shop and Mart, R. Dollara shop and mart chakdara, dollar mart chakdara, online shopping chakdara, dir lower shop">
-<meta property="og:title" content="R. Dollar Shop and Mart Chakdara">
-<meta property="og:description" content="Sab kuch Rs 280 mein — Jewellery, Cosmetics, Kitchen items, etc. Cash on delivery Chakdara.">
-<meta property="og:url" content="https://rdollarshopcakdara.vercel.app">
-<meta property="og:type" content="website">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://rdollarshopcakdara.vercel.app">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -372,10 +362,10 @@
         PRODUCTS = data.map(p => ({
           id: p.id, name: p.name, cat: p.category, price: p.price,
           emoji: p.emoji || '📦', stock: p.stock,
-          mart: MART_CATS.includes(p.category),
+          // Price-based: Rs 280 = Dollar Shop, less than 280 = Mart
+          mart: p.price < 280,
           variants: p.variants || undefined,
           image_url: p.image_url || null,
-          // Multi-category support: use categories array if set, else fallback to single cat
           categories: (p.categories && p.categories.length > 0) ? p.categories : [p.category],
         }));
       } else { PRODUCTS = []; }
@@ -400,26 +390,25 @@
 
   function renderChips(){
     const sidebar = document.getElementById('catSidebar');
-    let allCats;
-    if(activeStore === 'mart') allCats = ['All', ...MART_CATS];
-    else if(activeStore === 'dollar') allCats = ['All', ...DOLLAR_CATS];
-    else allCats = ['All', ...DOLLAR_CATS, ...MART_CATS];
+    // Show ALL categories in sidebar regardless of store — store filter is price-based
+    let allCats = ['All'];
     PRODUCTS.forEach(p=>{
-      // Add all categories from multi-cat products to sidebar
       (p.categories || [p.cat]).forEach(c => { if(!allCats.includes(c)) allCats.push(c); });
     });
-    const itemsHtml = allCats.map(c => {
-      const isMart = MART_CATS.includes(c);
+    // Sort: All first, then alphabetical
+    const sorted = ['All', ...allCats.filter(c=>c!=='All').sort()];
+
+    const itemsHtml = sorted.map(c => {
       const icon = CAT_ICONS[c] || '📦';
-      return `<div class="cat-sidebar-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')"><span class="cat-icon">${icon}</span>${c}${isMart?'<span class="mart-label">Mart</span>':''}</div>`;
+      return `<div class="cat-sidebar-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')"><span class="cat-icon">${icon}</span>${c}</div>`;
     }).join('');
     sidebar.innerHTML = '<div class="cat-sidebar-title">📂 Categories</div>' + itemsHtml;
+
     const drawerList = document.getElementById('catDrawerList');
     if(drawerList){
-      drawerList.innerHTML = allCats.map(c => {
-        const isMart = MART_CATS.includes(c);
+      drawerList.innerHTML = sorted.map(c => {
         const icon = CAT_ICONS[c] || '📦';
-        return `<div class="cat-drawer-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}');closeCatDrawer()"><span>${icon}</span>${c}${isMart?' <span style="font-size:10px;background:var(--green-dk);color:#fff;padding:1px 6px;border-radius:4px;margin-left:4px;">Mart</span>':''}</div>`;
+        return `<div class="cat-drawer-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}');closeCatDrawer()"><span>${icon}</span>${c}</div>`;
       }).join('');
     }
     const btn = document.getElementById('catDrawerBtn');
@@ -490,11 +479,12 @@
     const section = document.getElementById('productSection');
     let list = PRODUCTS.slice();
 
-    // Store filter: check primary cat OR any of the categories
+    // Store filter: price-based
+    // Dollar Shop = price >= 280 | Mart = price < 280
     if(activeStore === 'mart')
-      list = list.filter(p => p.categories.some(c => MART_CATS.includes(c)));
+      list = list.filter(p => p.price < 280);
     else if(activeStore === 'dollar')
-      list = list.filter(p => p.categories.some(c => !MART_CATS.includes(c)));
+      list = list.filter(p => p.price >= 280);
 
     // Category filter: product must be in selected category
     if(activeCat!=='All')

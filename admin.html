@@ -373,7 +373,17 @@
       <div class="field"><label>Product Name</label><input type="text" id="prodName" placeholder="e.g. Plastic Storage Box"></div>
       <div class="field">
         <label>Categories <span style="font-weight:400;color:var(--muted);">(ek ya zyada select karein)</span></label>
-        <div id="catCheckboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px;padding:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;max-height:230px;overflow-y:auto;">
+        <!-- NEW CATEGORY — prominent at top -->
+        <div style="display:flex;gap:8px;margin-top:8px;margin-bottom:8px;">
+          <input type="text" id="newCatName" placeholder="➕ Nai category ka naam likho (e.g. Tissue, Cream)..."
+            style="flex:1;padding:9px 12px;border:2px solid var(--yellow);border-radius:9px;font-size:13px;background:#FFFDF5;font-family:inherit;"
+            onkeydown="if(event.key==='Enter'){addNewCategory();event.preventDefault();}">
+          <button onclick="addNewCategory()"
+            style="background:var(--navy);color:var(--yellow);border:none;border-radius:9px;padding:9px 18px;font-size=13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">
+            + Add
+          </button>
+        </div>
+        <div id="catCheckboxes" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;max-height:230px;overflow-y:auto;">
           <label class="cat-cb-label"><input type="checkbox" value="Plastic"> 🧴 Plastic</label>
           <label class="cat-cb-label"><input type="checkbox" value="Jewellery"> 💍 Jewellery</label>
           <label class="cat-cb-label"><input type="checkbox" value="Decoration"> 🖼️ Decoration</label>
@@ -395,10 +405,10 @@
           <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="General"> 🛒 General</label>
           <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="Dry Fruits"> 🥜 Dry Fruits</label>
           <label class="cat-cb-label" style="border-color:var(--green);"><input type="checkbox" value="Ice Cream"> 🍦 Ice Cream</label>
-          <label class="cat-cb-label" style="border-color:var(--yellow);"><input type="checkbox" value="__custom__" id="customCatCheck" onchange="checkCustomCat(this)"> ➕ Custom</label>
+          <!-- Dynamic new categories added here -->
+          <div id="extraCatCheckboxes" style="display:contents;"></div>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:5px;">⭐ Pehli selected category badge par dikhegi</div>
-        <input type="text" id="customCatInput" placeholder="Custom category naam likho..." style="display:none;margin-top:8px;width:100%;padding:10px 13px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;background:var(--paper);">
+        <div style="font-size:11px;color:var(--muted);margin-top:5px;">⭐ Pehli selected = primary badge | 💛 Upar field mein nai category likho phir Add dabao</div>
       </div>
       <div class="field-row">
         <div class="field"><label>Price (Rs)</label><input type="number" id="prodPrice" placeholder="280"></div>
@@ -786,12 +796,13 @@ function openAddModal(){
   document.getElementById('addModal').classList.add('show');
 }
 function resetProductForm(){
-  ['prodName','prodPrice','prodStock','prodLowAlert','prodDesc','prodVideo','customCatInput'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  // Uncheck all category checkboxes, default = Plastic
+  ['prodName','prodPrice','prodStock','prodLowAlert','prodDesc','prodVideo','newCatName'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('#catCheckboxes input[type="checkbox"]').forEach(cb=>cb.checked=false);
   const plasticCb=document.querySelector('#catCheckboxes input[value="Plastic"]');
   if(plasticCb) plasticCb.checked=true;
-  document.getElementById('customCatInput').style.display='none';
+  // Clear dynamically added categories
+  const extra=document.getElementById('extraCatCheckboxes');
+  if(extra) extra.innerHTML='';
   document.getElementById('photoInput').value='';
   const area=document.getElementById('photoUploadArea');
   area.style.backgroundImage='';
@@ -807,8 +818,28 @@ function closeAddModal(){
 }
 function checkCustomCat(cb){
   const ci=document.getElementById('customCatInput');
-  if(cb.checked){ci.style.display='block';ci.focus();}
-  else{ci.style.display='none';ci.value='';}
+  if(cb && ci){
+    if(cb.checked){ci.style.display='block';ci.focus();}
+    else{ci.style.display='none';ci.value='';}
+  }
+}
+
+function addNewCategory(){
+  const input = document.getElementById('newCatName');
+  const name = input.value.trim();
+  if(!name){ input.focus(); return; }
+  // Check if already exists
+  const existing = document.querySelector(`#catCheckboxes input[value="${name}"]`);
+  if(existing){ existing.checked = true; input.value=''; return; }
+  // Add new checkbox
+  const container = document.getElementById('extraCatCheckboxes');
+  const label = document.createElement('label');
+  label.className = 'cat-cb-label';
+  label.style.borderColor = 'var(--yellow)';
+  label.innerHTML = `<input type="checkbox" value="${name}" checked> 📦 ${name}`;
+  container.appendChild(label);
+  input.value = '';
+  input.focus();
 }
 function previewPhoto(input){
   const file=input.files[0]; if(!file) return;
@@ -835,20 +866,16 @@ async function uploadPhoto(file, productName){
 async function saveProduct(){
   const name=document.getElementById('prodName').value.trim();
 
-  // Read all checked categories
-  const checked = Array.from(document.querySelectorAll('#catCheckboxes input[type="checkbox"]:checked'));
+  // Read all checked categories (including dynamically added ones)
+  const checked = Array.from(document.querySelectorAll('#catCheckboxes input[type="checkbox"]:checked, #extraCatCheckboxes input[type="checkbox"]:checked'));
   let cats = checked.map(cb => cb.value).filter(v => v !== '__custom__');
 
-  // Handle custom category
-  const customCb = document.getElementById('customCatCheck');
-  if(customCb && customCb.checked){
-    const customVal = document.getElementById('customCatInput').value.trim();
-    if(!customVal){ alert('Custom category naam likho!'); return; }
-    cats.push(customVal);
-  }
+  // Check if there's a newCatName that wasn't added yet
+  const pendingCat = document.getElementById('newCatName')?.value.trim();
+  if(pendingCat && !cats.includes(pendingCat)) cats.push(pendingCat);
 
   if(cats.length === 0){ alert('Kam az kam ek category select karo!'); return; }
-  const primaryCat = cats[0]; // pehli selected = primary category (badge)
+  const primaryCat = cats[0];
 
   const price=parseFloat(document.getElementById('prodPrice').value)||280;
   const stock=parseInt(document.getElementById('prodStock').value)||0;
