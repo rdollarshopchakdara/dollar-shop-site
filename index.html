@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dollar Shop & Mart - Chakdara</title>
+<!-- Preconnect for faster font loading -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Only load 3 weights instead of 5, saves ~40KB -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;800&display=swap" rel="stylesheet"></noscript>
 <style>
   :root{
     --navy:#1B2A6B; --yellow:#FFD23F; --yellow-soft:#FFE588;
@@ -222,7 +225,7 @@
     <div class="hnav-item" id="hnav-about" onclick="showAbout();setHNav('about')">ℹ️ About Us</div>
   </div>
   <div class="search-bar" style="display:flex;gap:8px;align-items:center;">
-    <input type="text" id="search" placeholder="🔍 Search products..." oninput="renderProducts()" style="flex:1;">
+    <input type="text" id="search" placeholder="🔍 Search products..." oninput="debouncedSearch()" style="flex:1;">
     <div class="lang-switcher">
       <button class="lang-btn active" id="lang-en" onclick="setLang('en')">EN</button>
       <button class="lang-btn" id="lang-ru" onclick="setLang('ru')">اُردو</button>
@@ -349,28 +352,82 @@
   const DOLLAR_CATS = ['Plastic','Jewellery','Decoration','Cosmetics','Stationery','Hardware','Birthday','Wedding','Toys','Kitchen','Toilet','Liquids','Watches','Mobile & Electronics','Glasses','Garments'];
   const MART_CATS = ['Cold Drinks','Snacks','General','Dry Fruits','Ice Cream'];
   let PRODUCTS = [];
+  let ALL_CATS = []; // just category names — loaded once
   let cart = [];
   let activeCat = 'All';
   let activeStore = 'all';
+  let searchTimer = null;
+  const catCache = {}; // per-category cache
 
-  async function loadProducts() {
+  // ── Step 1: Load only category names (super fast — one lightweight query) ──
+  async function loadCategories(){
     const section = document.getElementById('productSection');
-    section.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);font-size:15px;">⏳ Products load ho rahe hain...</div>';
+    section.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted);">⏳ Loading...</div>';
     try {
-      const data = await sbFetch('/rest/v1/products?order=category,name');
-      if(data && data.length > 0) {
-        PRODUCTS = data.map(p => ({
-          id: p.id, name: p.name, cat: p.category, price: p.price,
-          emoji: p.emoji || '📦', stock: p.stock,
-          // Price-based: Rs 280 = Dollar Shop, less than 280 = Mart
-          mart: p.price < 280,
-          variants: p.variants || undefined,
-          image_url: p.image_url || null,
-          categories: (p.categories && p.categories.length > 0) ? p.categories : [p.category],
-        }));
-      } else { PRODUCTS = []; }
-    } catch(e) { PRODUCTS = []; }
+      // Fetch distinct categories from DB
+      const data = await sbFetch('/rest/v1/products?select=category,categories&is_active=eq.true&limit=2000');
+      const catSet = new Set();
+      if(data) data.forEach(p => {
+        if(p.category) catSet.add(p.category);
+        if(p.categories && Array.isArray(p.categories)) p.categories.forEach(c => catSet.add(c));
+      });
+      ALL_CATS = ['All', ...Array.from(catSet).sort()];
+    } catch(e) {
+      ALL_CATS = ['All', ...DOLLAR_CATS, ...MART_CATS];
+    }
     renderChips();
+    // Auto-load first category for better UX
+    await loadProductsForView();
+  }
+
+  // ── Step 2: Load products for current view (category + store filter) ──
+  async function loadProductsForView(){
+    const section = document.getElementById('productSection');
+    const search = document.getElementById('search')?.value.trim() || '';
+
+    // Build cache key
+    const cacheKey = `${activeCat}|${activeStore}|${search}`;
+
+    // Check per-category cache (2 min TTL)
+    if(catCache[cacheKey] && Date.now() - catCache[cacheKey].time < 2*60*1000){
+      PRODUCTS = catCache[cacheKey].data;
+      renderProducts();
+      return;
+    }
+
+    section.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">⏳ Loading...</div>';
+
+    try {
+      // Build Supabase query with server-side filters
+      let url = '/rest/v1/products?is_active=eq.true&order=name&limit=150';
+
+      // Store filter by price
+      if(activeStore === 'dollar') url += '&price=gte.280';
+      if(activeStore === 'mart')   url += '&price=lt.280';
+
+      // Category filter
+      if(activeCat !== 'All'){
+        const enc = encodeURIComponent(activeCat);
+        // Match primary category OR categories array contains it
+        url += `&or=(category.eq.${enc},categories.cs.${encodeURIComponent(`["${activeCat}"]`)})`;
+      }
+
+      // Search filter
+      if(search) url += `&name=ilike.*${encodeURIComponent(search)}*`;
+
+      const data = await sbFetch(url);
+      PRODUCTS = (data||[]).map(p => ({
+        id: p.id, name: p.name, cat: p.category, price: p.price,
+        emoji: p.emoji || '📦', stock: p.stock,
+        mart: p.price < 280,
+        image_url: p.image_url || null,
+        categories: (p.categories && p.categories.length > 0) ? p.categories : [p.category],
+      }));
+
+      // Cache this result
+      catCache[cacheKey] = { data: PRODUCTS, time: Date.now() };
+
+    } catch(e) { PRODUCTS = []; }
     renderProducts();
   }
 
@@ -390,23 +447,15 @@
 
   function renderChips(){
     const sidebar = document.getElementById('catSidebar');
-    // Show ALL categories in sidebar regardless of store — store filter is price-based
-    let allCats = ['All'];
-    PRODUCTS.forEach(p=>{
-      (p.categories || [p.cat]).forEach(c => { if(!allCats.includes(c)) allCats.push(c); });
-    });
-    // Sort: All first, then alphabetical
-    const sorted = ['All', ...allCats.filter(c=>c!=='All').sort()];
-
-    const itemsHtml = sorted.map(c => {
+    const cats = ALL_CATS.length > 1 ? ALL_CATS : ['All', ...DOLLAR_CATS, ...MART_CATS];
+    const itemsHtml = cats.map(c => {
       const icon = CAT_ICONS[c] || '📦';
       return `<div class="cat-sidebar-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')"><span class="cat-icon">${icon}</span>${c}</div>`;
     }).join('');
     sidebar.innerHTML = '<div class="cat-sidebar-title">📂 Categories</div>' + itemsHtml;
-
     const drawerList = document.getElementById('catDrawerList');
     if(drawerList){
-      drawerList.innerHTML = sorted.map(c => {
+      drawerList.innerHTML = cats.map(c => {
         const icon = CAT_ICONS[c] || '📦';
         return `<div class="cat-drawer-item ${activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}');closeCatDrawer()"><span>${icon}</span>${c}</div>`;
       }).join('');
@@ -415,13 +464,14 @@
     if(btn) btn.innerHTML = `<span>📂 ${activeCat==='All'?'Categories':activeCat}</span> <span>☰</span>`;
   }
 
-  function setStore(store){ activeStore=store; activeCat='All'; renderChips(); renderProducts(); }
+  function setStore(store){ activeStore=store; activeCat='All'; renderChips(); loadProductsForView(); }
   function openCatDrawer(){ document.getElementById('catDrawerOverlay').classList.add('open'); document.getElementById('catDrawer').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeCatDrawer(){ document.getElementById('catDrawerOverlay').classList.remove('open'); document.getElementById('catDrawer').classList.remove('open'); document.body.style.overflow=''; }
   function openMobileNav(){ document.getElementById('mobileNav').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeMobileNav(){ document.getElementById('mobileNav').classList.remove('open'); document.body.style.overflow=''; }
   function setHNav(id){ document.querySelectorAll('.hnav-item').forEach(n=>n.classList.remove('active')); const el=document.getElementById('hnav-'+id); if(el) el.classList.add('active'); }
-  function setCat(c){ activeCat=c; renderChips(); renderProducts(); window.scrollTo({top:0,behavior:'smooth'}); }
+  function setCat(c){ activeCat=c; renderChips(); loadProductsForView(); window.scrollTo({top:0,behavior:'smooth'}); }
+  function debouncedSearch(){ clearTimeout(searchTimer); searchTimer = setTimeout(()=>{ activeCat='All'; loadProductsForView(); }, 400); }
 
   async function showTrending(){
     const section = document.getElementById('productSection');
@@ -434,7 +484,7 @@
         return;
       }
       section.innerHTML = '<div class="section-head"><div class="dot"></div><h2>🔥 Trending Products</h2></div><div class="grid">' +
-        list.map(p => `<div class="card" style="cursor:pointer;" onclick="openProductDetail('${p.id}')"><div class="card-img">${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;">`:(p.emoji||'📦')}<span class="card-cat">${p.category}</span></div><div class="card-body"><div class="card-name">${p.name}</div><div class="card-price">Rs ${p.price}</div><button class="add-btn" onclick="event.stopPropagation();addToCartById('${p.id}')">+ Add to Cart</button></div></div>`).join('') + '</div>';
+        list.map(p => `<div class="card" style="cursor:pointer;" onclick="openProductDetail('${p.id}')"><div class="card-img">${p.image_url?`<img src="${p.image_url}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`:(p.emoji||'📦')}<span class="card-cat">${p.category}</span></div><div class="card-body"><div class="card-name">${p.name}</div><div class="card-price">Rs ${p.price}</div><button class="add-btn" onclick="event.stopPropagation();addToCartById('${p.id}')">+ Add to Cart</button></div></div>`).join('') + '</div>';
     } catch(e) { section.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Error loading</div>'; }
   }
 
@@ -517,7 +567,7 @@
       const isMart = MART_CATS.includes(cat);
       html+=`<div class="section-head ${isMart?'mart':''}"><div class="dot"></div><h2>${isMart?'🏪 ':''}${cat}</h2></div><div class="grid">`;
       groups[cat].forEach(p=>{
-        html+=`<div class="card" style="cursor:pointer;" onclick="openProductDetail('${p.id}')"><div class="card-img">${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;">`:p.emoji}<span class="card-cat">${p.cat}</span></div><div class="card-body"><div class="card-name">${p.name}</div><div class="card-price">Rs ${p.price}</div><button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ Add to Cart</button></div></div>`;
+        html+=`<div class="card" style="cursor:pointer;" onclick="openProductDetail('${p.id}')"><div class="card-img">${p.image_url?`<img src="${p.image_url}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">`:p.emoji}<span class="card-cat">${p.cat}</span></div><div class="card-body"><div class="card-name">${p.name}</div><div class="card-price">Rs ${p.price}</div><button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ Add to Cart</button></div></div>`;
       });
       html+='</div>';
     });
@@ -713,7 +763,7 @@
     const footerWa=document.querySelector('.f-wa'); if(footerWa) footerWa.textContent='💬 '+t.footerWa;
     ['en','ru','ro'].forEach(l=>{ const btn=document.getElementById('lang-'+l); if(btn) btn.classList.toggle('active',l===lang); });
     renderChips();
-    renderProducts();
+    loadProductsForView();
   }
 
   async function applyWebsiteTheme(){
@@ -738,7 +788,7 @@
     } catch(e){}
   }
 
-  loadProducts();
+  loadCategories();
   applyWebsiteTheme();
 </script>
 </body>
